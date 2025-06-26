@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus, MessageCircle, Calendar, MapPin, Coffee, Video, Globe, UserCheck, Sparkles, Award, Network } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus, MessageCircle, Calendar, MapPin, Coffee, Video, Globe, UserCheck, Sparkles, Award, Network, Play, CheckCircle, Circle, Book, Briefcase, UserPlus, GraduationCap } from 'lucide-react';
 
 const PathFinderPro = () => {
   const [currentStep, setCurrentStep] = useState('welcome');
+  const [selectedCareerPath, setSelectedCareerPath] = useState(null);
+  const [journeyView, setJourneyView] = useState(false);
   const [userProfile, setUserProfile] = useState({
     currentRole: '',
     experience: '',
@@ -157,6 +159,76 @@ const PathFinderPro = () => {
     { skill: "React/Frontend", demand: 76, growth: "+22%" }
   ];
 
+  // Journey Data for Each Career Path
+  const journeyData = {
+    "Senior Software Engineer": {
+      title: "Senior Software Engineer",
+      totalMonths: 20,
+      description: "Evolve from a mid-level developer to a senior engineer with deep technical expertise and leadership skills",
+      nodes: [
+        { id: "advanced-react", type: "skill", title: "Master Advanced React Patterns", month: 2, timeInvestment: "40h", status: "not-started", priority: "high", resources: ["Advanced React Course", "Build Component Library"] },
+        { id: "testing-mastery", type: "skill", title: "Testing Strategies & TDD", month: 2, timeInvestment: "30h", status: "not-started", priority: "medium", resources: ["Jest & Testing Library", "TDD Workshop"] },
+        { id: "system-design", type: "skill", title: "System Design Fundamentals", month: 5, timeInvestment: "60h", status: "not-started", priority: "high", resources: ["System Design Course", "Practice System Design"] },
+        { id: "microservices", type: "skill", title: "Microservices Architecture", month: 7, timeInvestment: "45h", status: "not-started", priority: "medium", resources: ["Microservices Patterns Book", "Docker & Kubernetes"] },
+        { id: "code-reviews", type: "skill", title: "Effective Code Review Leadership", month: 9, timeInvestment: "20h", status: "not-started", priority: "medium", resources: ["Code Review Best Practices", "Mentoring Guidelines"] },
+        { id: "mentoring", type: "experience", title: "Junior Developer Mentoring", month: 11, timeInvestment: "30h", status: "not-started", priority: "high", resources: ["Find Mentee", "Mentoring Program"] },
+        { id: "tech-talks", type: "achievement", title: "Give Technical Presentations", month: 14, timeInvestment: "25h", status: "not-started", priority: "medium", resources: ["Speaking Workshop", "Tech Conference CFP"] },
+        { id: "open-source", type: "project", title: "Lead Open Source Contribution", month: 15, timeInvestment: "50h", status: "not-started", priority: "medium", resources: ["GitHub Projects", "Open Source Guide"] },
+        { id: "senior-network", type: "networking", title: "Connect with Senior Engineers", month: 17, timeInvestment: "15h", status: "not-started", priority: "high", resources: ["LinkedIn Outreach", "Tech Meetups"] },
+        { id: "interview-prep", type: "milestone", title: "Senior Role Interview Preparation", month: 19, timeInvestment: "30h", status: "not-started", priority: "high", resources: ["System Design Practice", "Leadership Examples"] },
+        { id: "role-applications", type: "milestone", title: "Apply for Senior Positions", month: 20, timeInvestment: "25h", status: "not-started", priority: "high", resources: ["Resume Update", "Portfolio Review"] }
+      ]
+    },
+    "Engineering Manager": {
+      title: "Engineering Manager",
+      totalMonths: 30,
+      description: "Transition from individual contributor to engineering leader managing teams and technical strategy",
+      nodes: [
+        { id: "leadership-basics", type: "course", title: "Engineering Leadership Fundamentals", month: 3, timeInvestment: "35h", status: "not-started", priority: "high", resources: ["Leadership Course", "Management Books"] },
+        { id: "team-leading", type: "experience", title: "Lead Small Team/Project", month: 5, timeInvestment: "ongoing", status: "not-started", priority: "high", resources: ["Volunteer for Team Lead", "Project Management"] },
+        { id: "1on1-skills", type: "skill", title: "Effective 1-on-1 Meetings", month: 8, timeInvestment: "20h", status: "not-started", priority: "high", resources: ["1-on-1 Framework", "Feedback Training"] },
+        { id: "performance-mgmt", type: "course", title: "Performance Management Training", month: 10, timeInvestment: "40h", status: "not-started", priority: "high", resources: ["HR Training", "Performance Review System"] },
+        { id: "project-mgmt", type: "certification", title: "Project Management Certification", month: 15, timeInvestment: "60h", status: "not-started", priority: "medium", resources: ["PMP Course", "Agile Certification"] },
+        { id: "budget-planning", type: "skill", title: "Technical Budget & Planning", month: 17, timeInvestment: "30h", status: "not-started", priority: "medium", resources: ["Finance for Managers", "Budget Planning"] },
+        { id: "hiring-skills", type: "skill", title: "Technical Interviewing & Hiring", month: 20, timeInvestment: "25h", status: "not-started", priority: "high", resources: ["Interviewer Training", "Hiring Best Practices"] },
+        { id: "team-culture", type: "project", title: "Build High-Performing Team Culture", month: 22, timeInvestment: "ongoing", status: "not-started", priority: "high", resources: ["Team Building", "Culture Framework"] },
+        { id: "mgmt-network", type: "networking", title: "Connect with Engineering Managers", month: 26, timeInvestment: "20h", status: "not-started", priority: "medium", resources: ["Manager Meetups", "Leadership Groups"] },
+        { id: "mgmt-applications", type: "milestone", title: "Apply for Management Roles", month: 29, timeInvestment: "30h", status: "not-started", priority: "high", resources: ["Management Resume", "Leadership Portfolio"] }
+      ]
+    },
+    "Product Manager": {
+      title: "Product Manager", 
+      totalMonths: 18,
+      description: "Transition into product management with user research, data analysis, and strategic thinking skills",
+      nodes: [
+        { id: "product-strategy", type: "course", title: "Product Strategy & Vision", month: 2, timeInvestment: "45h", status: "not-started", priority: "high", resources: ["Product Management Course", "Strategy Frameworks"] },
+        { id: "user-research", type: "skill", title: "User Research Methods", month: 3, timeInvestment: "35h", status: "not-started", priority: "high", resources: ["UX Research Course", "User Interview Practice"] },
+        { id: "data-analysis", type: "skill", title: "Product Analytics & Data Analysis", month: 6, timeInvestment: "50h", status: "not-started", priority: "high", resources: ["Analytics Tools", "Data Science Basics"] },
+        { id: "a-b-testing", type: "skill", title: "A/B Testing & Experimentation", month: 7, timeInvestment: "30h", status: "not-started", priority: "medium", resources: ["Experimentation Framework", "Statistical Analysis"] },
+        { id: "roadmap-planning", type: "skill", title: "Product Roadmap Planning", month: 10, timeInvestment: "25h", status: "not-started", priority: "high", resources: ["Roadmap Tools", "Prioritization Methods"] },
+        { id: "stakeholder-mgmt", type: "skill", title: "Stakeholder Management", month: 11, timeInvestment: "20h", status: "not-started", priority: "high", resources: ["Communication Training", "Influence Techniques"] },
+        { id: "product-portfolio", type: "project", title: "Build Product Management Portfolio", month: 14, timeInvestment: "40h", status: "not-started", priority: "high", resources: ["Case Studies", "Product Launches"] },
+        { id: "pm-network", type: "networking", title: "Connect with Product Managers", month: 16, timeInvestment: "15h", status: "not-started", priority: "medium", resources: ["PM Communities", "Product Events"] },
+        { id: "pm-applications", type: "milestone", title: "Apply for PM Roles", month: 17, timeInvestment: "25h", status: "not-started", priority: "high", resources: ["PM Resume", "Interview Prep"] }
+      ]
+    },
+    "Technical Lead": {
+      title: "Technical Lead",
+      totalMonths: 15,
+      description: "Become a technical leader driving architecture decisions and mentoring other developers",
+      nodes: [
+        { id: "software-architecture", type: "skill", title: "Software Architecture Patterns", month: 2, timeInvestment: "50h", status: "not-started", priority: "high", resources: ["Architecture Course", "Design Patterns"] },
+        { id: "cloud-architecture", type: "skill", title: "Cloud Architecture Design", month: 3, timeInvestment: "45h", status: "not-started", priority: "high", resources: ["AWS/Azure Training", "Cloud Patterns"] },
+        { id: "technical-strategy", type: "skill", title: "Technical Strategy & Planning", month: 6, timeInvestment: "40h", status: "not-started", priority: "high", resources: ["Tech Strategy Course", "Architecture Decisions"] },
+        { id: "mentoring-developers", type: "experience", title: "Mentor Junior/Mid Developers", month: 7, timeInvestment: "ongoing", status: "not-started", priority: "high", resources: ["Mentoring Program", "Teaching Skills"] },
+        { id: "tech-documentation", type: "skill", title: "Technical Documentation & Communication", month: 10, timeInvestment: "25h", status: "not-started", priority: "medium", resources: ["Documentation Best Practices", "Technical Writing"] },
+        { id: "cross-team-collab", type: "skill", title: "Cross-Team Collaboration", month: 11, timeInvestment: "30h", status: "not-started", priority: "high", resources: ["Collaboration Tools", "Stakeholder Management"] },
+        { id: "lead-portfolio", type: "project", title: "Lead Major Technical Initiative", month: 13, timeInvestment: "ongoing", status: "not-started", priority: "high", resources: ["Architecture Proposal", "Technical Leadership"] },
+        { id: "lead-applications", type: "milestone", title: "Apply for Tech Lead Roles", month: 14, timeInvestment: "20h", status: "not-started", priority: "high", resources: ["Technical Resume", "Leadership Examples"] }
+      ]
+    }
+  };
+
   // Community data
   const communityGroups = [
     {
@@ -310,6 +382,190 @@ const PathFinderPro = () => {
     }
   ];
 
+  // Journey Visualization Component
+  const renderJourneyVisualization = () => {
+    const journey = journeyData[selectedCareerPath?.title];
+    if (!journey) return null;
+
+    const getNodeIcon = (type) => {
+      switch (type) {
+        case 'skill': return Book;
+        case 'course': return GraduationCap;
+        case 'experience': return Briefcase;
+        case 'networking': return UserPlus;
+        case 'project': return Trophy;
+        case 'achievement': return Star;
+        case 'milestone': return Target;
+        default: return Circle;
+      }
+    };
+
+    const getNodeColor = (type) => {
+      switch (type) {
+        case 'skill': return 'bg-blue-100 border-blue-500 text-blue-700';
+        case 'course': return 'bg-green-100 border-green-500 text-green-700';
+        case 'experience': return 'bg-purple-100 border-purple-500 text-purple-700';
+        case 'networking': return 'bg-pink-100 border-pink-500 text-pink-700';
+        case 'project': return 'bg-yellow-100 border-yellow-500 text-yellow-700';
+        case 'achievement': return 'bg-orange-100 border-orange-500 text-orange-700';
+        case 'milestone': return 'bg-red-100 border-red-500 text-red-700';
+        default: return 'bg-gray-100 border-gray-500 text-gray-700';
+      }
+    };
+
+    const getStatusIcon = (status) => {
+      switch (status) {
+        case 'completed': return CheckCircle;
+        case 'in-progress': return Play;
+        default: return Circle;
+      }
+    };
+
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <button 
+                onClick={() => setJourneyView(false)}
+                className="flex items-center text-purple-600 hover:text-purple-700 mb-4"
+              >
+                <ArrowRight className="w-4 h-4 mr-2 transform rotate-180" />
+                Back to Dashboard
+              </button>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">{journey.title} Journey</h2>
+              <p className="text-gray-600 mb-4">{journey.description}</p>
+              <div className="flex items-center gap-6 text-sm text-gray-500">
+                <span>📅 {journey.totalMonths} months timeline</span>
+                <span>📊 {journey.nodes.length} milestones</span>
+                <span>⏱️ ~{journey.nodes.reduce((total, node) => total + parseInt(node.timeInvestment), 0)}h total investment</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline Visualization */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Interactive Journey Map</h3>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex items-center text-xs">
+                <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
+                <span>Skills</span>
+              </div>
+              <div className="flex items-center text-xs">
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                <span>Courses</span>
+              </div>
+              <div className="flex items-center text-xs">
+                <div className="w-3 h-3 rounded-full bg-purple-500 mr-1"></div>
+                <span>Experience</span>
+              </div>
+              <div className="flex items-center text-xs">
+                <div className="w-3 h-3 rounded-full bg-pink-500 mr-1"></div>
+                <span>Networking</span>
+              </div>
+              <div className="flex items-center text-xs">
+                <div className="w-3 h-3 rounded-full bg-yellow-500 mr-1"></div>
+                <span>Projects</span>
+              </div>
+              <div className="flex items-center text-xs">
+                <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                <span>Milestones</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Nodes Grid */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {journey.nodes.map((node, index) => {
+              const NodeIcon = getNodeIcon(node.type);
+              const StatusIcon = getStatusIcon(node.status);
+              const nodeColors = getNodeColor(node.type);
+              
+              return (
+                <div 
+                  key={node.id} 
+                  className={`border-2 rounded-lg p-4 cursor-pointer hover:shadow-md transition-all ${nodeColors}`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center">
+                      <NodeIcon className="w-5 h-5 mr-2" />
+                      <span className="text-xs font-medium bg-white px-2 py-1 rounded">
+                        Month {node.month}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <StatusIcon className="w-4 h-4 mr-1" />
+                      {node.priority === 'high' && (
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">High Priority</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <h4 className="font-semibold text-sm mb-2">{node.title}</h4>
+                  
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span>Time Investment:</span>
+                      <span className="font-medium">{node.timeInvestment}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Status:</span>
+                      <span className="font-medium capitalize">{node.status.replace('-', ' ')}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 pt-3 border-t border-current border-opacity-20">
+                    <p className="text-xs font-medium mb-1">Resources:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {node.resources.slice(0, 2).map((resource, i) => (
+                        <span key={i} className="text-xs bg-white bg-opacity-70 px-2 py-1 rounded">
+                          {resource}
+                        </span>
+                      ))}
+                      {node.resources.length > 2 && (
+                        <span className="text-xs bg-white bg-opacity-70 px-2 py-1 rounded">
+                          +{node.resources.length - 2} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Progress Summary */}
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+            <h4 className="font-bold text-gray-900 mb-2">Journey Progress</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">0%</div>
+                <div className="text-gray-600">Completed</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{journey.nodes.length}</div>
+                <div className="text-gray-600">Total Nodes</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{journey.totalMonths}</div>
+                <div className="text-gray-600">Months</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">
+                  {journey.nodes.reduce((total, node) => total + parseInt(node.timeInvestment), 0)}h
+                </div>
+                <div className="text-gray-600">Time Investment</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderWelcome = () => (
     <div className="max-w-4xl mx-auto p-6">
       <div className="text-center mb-8">
@@ -343,13 +599,22 @@ const PathFinderPro = () => {
       </div>
 
       <div className="text-center">
-        <button 
-          onClick={() => setCurrentStep('assessment')}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity flex items-center mx-auto"
-        >
-          Start Your Career Assessment
-          <ChevronRight className="ml-2 w-5 h-5" />
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button 
+            onClick={() => setCurrentStep('assessment')}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity flex items-center"
+          >
+            Start Your Career Assessment
+            <ChevronRight className="ml-2 w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setCurrentStep('community')}
+            className="border-2 border-purple-600 text-purple-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-purple-50 transition-colors flex items-center"
+          >
+            Explore Community
+            <Users className="ml-2 w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -725,8 +990,28 @@ const PathFinderPro = () => {
   const renderCommunity = () => (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Hub</h2>
-        <p className="text-gray-600">Connect, learn, and grow with women in tech worldwide</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Hub</h2>
+            <p className="text-gray-600">Connect, learn, and grow with women in tech worldwide</p>
+          </div>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setCurrentStep('dashboard')}
+              className="flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Dashboard
+            </button>
+            <button 
+              onClick={() => setCurrentStep('welcome')}
+              className="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Quick Stats Bar */}
@@ -966,7 +1251,7 @@ const PathFinderPro = () => {
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
               <Sparkles className="w-5 h-5 text-green-600 mr-2" />
-              Success Stories
+              Women Like Me
             </h3>
             
             <div className="space-y-4">
@@ -987,6 +1272,14 @@ const PathFinderPro = () => {
                           {story.likes}
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* View Journey Button */}
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <button className="w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
+                        <Play className="w-4 h-4 mr-2" />
+                        View Interactive Journey
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1054,7 +1347,14 @@ const PathFinderPro = () => {
             
             <div className="space-y-4">
               {careerPaths.map((path, index) => (
-                <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div 
+                  key={index} 
+                  className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => {
+                    setSelectedCareerPath(path);
+                    setJourneyView(true);
+                  }}
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h4 className="font-semibold text-gray-900 flex items-center">
@@ -1216,10 +1516,16 @@ const PathFinderPro = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {currentStep === 'welcome' && renderWelcome()}
-      {currentStep === 'assessment' && renderAssessment()}
-      {currentStep === 'dashboard' && renderDashboard()}
-      {currentStep === 'community' && renderCommunity()}
+      {journeyView ? (
+        renderJourneyVisualization()
+      ) : (
+        <>
+          {currentStep === 'welcome' && renderWelcome()}
+          {currentStep === 'assessment' && renderAssessment()}
+          {currentStep === 'dashboard' && renderDashboard()}
+          {currentStep === 'community' && renderCommunity()}
+        </>
+      )}
     </div>
   );
 };
