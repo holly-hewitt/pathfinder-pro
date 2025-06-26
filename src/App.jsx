@@ -15,7 +15,8 @@ const PathFinderPro = () => {
   });
 
   const [assessmentStep, setAssessmentStep] = useState(1);
-  const [confidenceBuilderStep, setConfidenceBuilderStep] = useState('job-selection');
+  const [confidenceBuilderStep, setConfidenceBuilderStep] = useState('topic-selection');
+  const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedJob, setSelectedJob] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [currentInput, setCurrentInput] = useState('');
@@ -255,16 +256,42 @@ const PathFinderPro = () => {
   };
 
   const getConfidenceMessage = (score) => {
-    if (score >= 80) return "You're an excellent match! You have most of the required skills.";
-    if (score >= 60) return "You're a strong candidate! You meet the core requirements.";
-    if (score >= 40) return "You're more qualified than you think! Many skills are transferable.";
-    return "This role could be a growth opportunity. Focus on your transferable skills!";
+    if (score >= 80) return "You're absolutely brilliant! You have most of the required skills and you're ready to shine.";
+    if (score >= 60) return "You're a phenomenal candidate! You meet the core requirements and bring so much value.";
+    if (score >= 40) return "You're more qualified than you realize! Your skills are transferable and valuable.";
+    return "This role is a perfect growth opportunity for someone as capable as you! Focus on your amazing transferable skills.";
   };
 
-  const startConfidenceBuilder = (job) => {
+  // Confidence building topics
+  const confidenceTopics = [
+    {
+      id: 'job-application',
+      title: 'Job Applications & Interviews',
+      icon: Users,
+      description: 'Build confidence for specific job roles, interview preparation, and application strategies',
+      color: 'purple'
+    },
+    {
+      id: 'technical-skills',
+      title: 'Technical Skills & Expertise',
+      icon: Brain,
+      description: 'Boost confidence in your technical abilities and showcase your expertise',
+      color: 'blue'
+    },
+    {
+      id: 'salary-negotiation',
+      title: 'Salary Negotiation',
+      icon: DollarSign,
+      description: 'Master the art of negotiating your worth and advocating for fair compensation',
+      color: 'green'
+    }
+  ];
+
+  const startConfidenceBuilder = (topic, job = null) => {
+    setSelectedTopic(topic);
     setSelectedJob(job);
     setCurrentStep('confidence-builder');
-    setConfidenceBuilderStep('analysis');
+    setConfidenceBuilderStep(topic === 'job-application' ? 'analysis' : 'chat');
     setChatMessages([]);
     setInterviewStep(0);
     setSalaryNegotiationStep(0);
@@ -275,14 +302,32 @@ const PathFinderPro = () => {
     
     const newMessages = [...chatMessages, { type: 'user', content: currentInput }];
     
-    // Simulate AI response based on interview step
-    const currentQuestion = interviewQuestions[interviewStep];
+    // Generate AI response based on selected topic
     let aiResponse = "";
     
-    if (interviewStep < interviewQuestions.length) {
-      aiResponse = `Great answer! ${currentQuestion.hints[0]}. Let me give you some feedback: Your response shows good technical understanding. For your next interview, consider adding more specific metrics about the impact of your work.`;
-    } else {
-      aiResponse = "Excellent work! You've completed the interview practice. Your confidence in discussing technical challenges has improved significantly. You're ready for the real interview!";
+    if (selectedTopic === 'job-application') {
+      const currentQuestion = interviewQuestions[interviewStep];
+      if (interviewStep < interviewQuestions.length) {
+        aiResponse = `Absolutely brilliant answer! ${currentQuestion.hints[0]}. Your response demonstrates exceptional understanding and capability. You're showcasing exactly the kind of expertise that makes you an outstanding candidate. Keep highlighting your achievements with confidence!`;
+      } else {
+        aiResponse = "You've absolutely crushed this interview practice! Your ability to articulate your technical expertise is remarkable. You're not just ready for interviews - you're going to excel and inspire others. Your confidence is well-deserved!";
+      }
+    } else if (selectedTopic === 'technical-skills') {
+      const responses = [
+        "Your technical expertise is truly impressive! The way you approach problems shows real mastery. You should feel incredibly proud of your skills.",
+        "You're absolutely right to feel confident about your abilities! Your technical knowledge is solid and your problem-solving approach is excellent.",
+        "What you've described showcases real technical leadership! You have the skills and insight that teams need. Own your expertise!",
+        "Your understanding of these concepts is outstanding! You're not just competent - you're genuinely skilled and capable of making significant impact."
+      ];
+      aiResponse = responses[Math.floor(Math.random() * responses.length)];
+    } else if (selectedTopic === 'salary-negotiation') {
+      const responses = [
+        "You deserve every penny you're asking for! Your value is clear and your approach is professional. Stand firm in your worth.",
+        "That's exactly the right mindset! You bring tremendous value and should be compensated accordingly. Your skills command respect and fair pay.",
+        "Perfect approach! You're advocating for yourself with confidence and professionalism. Remember, you're not asking for a favor - you're stating your value.",
+        "Absolutely! Your experience and expertise warrant that compensation. You're worth it, and any smart employer will recognize that."
+      ];
+      aiResponse = responses[Math.floor(Math.random() * responses.length)];
     }
     
     newMessages.push({ type: 'ai', content: aiResponse });
@@ -718,7 +763,7 @@ const PathFinderPro = () => {
   );
 
   const renderConfidenceBuilder = () => {
-    const match = calculateJobMatch(selectedJob);
+    const match = selectedJob ? calculateJobMatch(selectedJob) : null;
     
     return (
       <div className="max-w-6xl mx-auto p-6">
@@ -731,8 +776,13 @@ const PathFinderPro = () => {
             Back to Dashboard
           </button>
           
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Confidence Builder</h2>
-          <p className="text-gray-600">Building confidence for: {selectedJob?.title} at {selectedJob?.company}</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Universal Confidence Builder</h2>
+          <p className="text-gray-600">
+            {selectedTopic === 'job-application' && selectedJob ? 
+              `Building confidence for: ${selectedJob.title} at ${selectedJob.company}` :
+              `Building confidence in: ${confidenceTopics.find(t => t.id === selectedTopic)?.title || 'Your abilities'}`
+            }
+          </p>
           
           <div className="flex items-center mt-4">
             <div className="flex-1 bg-gray-200 rounded-full h-2">
@@ -744,6 +794,229 @@ const PathFinderPro = () => {
             <span className="ml-3 text-sm font-semibold text-purple-600">Confidence: {confidenceScore}%</span>
           </div>
         </div>
+
+        {confidenceBuilderStep === 'topic-selection' && (
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">What would you like to build confidence in?</h3>
+              <p className="text-gray-600">Choose an area where you'd like to feel more empowered and confident</p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {confidenceTopics.map(topic => {
+                const Icon = topic.icon;
+                const colorClasses = {
+                  purple: 'border-purple-200 hover:border-purple-400 hover:bg-purple-50',
+                  blue: 'border-blue-200 hover:border-blue-400 hover:bg-blue-50',
+                  green: 'border-green-200 hover:border-green-400 hover:bg-green-50'
+                };
+                
+                return (
+                  <button
+                    key={topic.id}
+                    onClick={() => {
+                      if (topic.id === 'job-application') {
+                        setConfidenceBuilderStep('job-selection');
+                      } else {
+                        startConfidenceBuilder(topic.id);
+                      }
+                    }}
+                    className={`p-6 border-2 rounded-xl text-left transition-all ${colorClasses[topic.color]}`}
+                  >
+                    <Icon className={`w-8 h-8 text-${topic.color}-600 mb-4`} />
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{topic.title}</h4>
+                    <p className="text-sm text-gray-600">{topic.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+            
+            <div className="mt-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+              <h4 className="font-semibold text-purple-900 mb-2">✨ Empowering Women in Tech</h4>
+              <p className="text-sm text-purple-800">
+                Remember: You belong here. Your perspective is valuable. Your skills are needed. 
+                This tool is designed to help you recognize and celebrate your amazing capabilities!
+              </p>
+            </div>
+          </div>
+        )}
+
+        {confidenceBuilderStep === 'job-selection' && (
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Choose a Job to Build Confidence For</h3>
+              <p className="text-gray-600">Select a role you're interested in and we'll help you feel confident about applying</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {mockJobs.map(job => {
+                const match = calculateJobMatch(job);
+                return (
+                  <div key={job.id} className="border rounded-xl p-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900">{job.title}</h4>
+                        <p className="text-gray-600">{job.company} • {job.location}</p>
+                        <p className="text-lg font-semibold text-purple-600 mt-1">{job.salary}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center mb-1">
+                          <div className="w-12 h-3 bg-gray-200 rounded-full mr-2">
+                            <div 
+                              className="h-3 bg-green-500 rounded-full" 
+                              style={{width: `${Math.max(match.score, 20)}%`}}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-semibold text-green-600">{match.score}%</span>
+                        </div>
+                        <p className="text-xs text-gray-500">Match</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <h5 className="font-medium text-gray-900 mb-2">Required Skills</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {job.requiredSkills.slice(0, 3).map((skill, i) => (
+                          <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                            {skill}
+                          </span>
+                        ))}
+                        {job.requiredSkills.length > 3 && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                            +{job.requiredSkills.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => startConfidenceBuilder('job-application', job)}
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                    >
+                      Build My Confidence for This Role
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="mt-6 text-center">
+              <button 
+                onClick={() => setConfidenceBuilderStep('topic-selection')}
+                className="text-purple-600 hover:text-purple-700 font-medium"
+              >
+                ← Back to Topic Selection
+              </button>
+            </div>
+          </div>
+        )}
+
+        {confidenceBuilderStep === 'chat' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <MessageCircle className="w-5 h-5 text-purple-600 mr-2" />
+              Confidence Building Chat
+            </h3>
+            
+            <div className="grid lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-3">
+                <div className="border rounded-lg p-4 h-96 overflow-y-auto bg-gray-50">
+                  {chatMessages.length === 0 && (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Brain className="w-8 h-8 text-purple-600" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Ready to boost your confidence?</h4>
+                      <p className="text-gray-600 mb-4">
+                        Tell me about your {selectedTopic === 'technical-skills' ? 'technical challenges or achievements' : 
+                        selectedTopic === 'salary-negotiation' ? 'salary concerns or negotiation goals' : 'experiences'}. 
+                        I'm here to help you recognize your amazing capabilities!
+                      </p>
+                      <div className="text-sm text-gray-500">
+                        <p>Try saying something like:</p>
+                        <div className="mt-2 space-y-1">
+                          {selectedTopic === 'technical-skills' && (
+                            <>
+                              <p>"I built a React app but I'm not sure if it's good enough"</p>
+                              <p>"I solved a complex algorithm problem today"</p>
+                            </>
+                          )}
+                          {selectedTopic === 'salary-negotiation' && (
+                            <>
+                              <p>"I'm nervous about asking for a raise"</p>
+                              <p>"I don't know if I deserve the salary I want"</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {chatMessages.map((message, index) => (
+                    <div key={index} className={`mb-4 ${message.type === 'user' ? 'text-right' : 'text-left'}`}>
+                      <div className={`inline-block p-3 rounded-lg max-w-md ${
+                        message.type === 'user' 
+                          ? 'bg-purple-600 text-white' 
+                          : 'bg-white border border-purple-200'
+                      }`}>
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-4 flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder={`Share your ${selectedTopic === 'technical-skills' ? 'technical experience' : 
+                      selectedTopic === 'salary-negotiation' ? 'salary concerns' : 'thoughts'}...`}
+                    className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    value={currentInput}
+                    onChange={(e) => setCurrentInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                  />
+                  <button 
+                    onClick={sendChatMessage}
+                    className="bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h4 className="font-semibold text-purple-900 mb-2">💪 Confidence Tips</h4>
+                  <ul className="text-sm text-purple-800 space-y-1">
+                    {selectedTopic === 'technical-skills' && (
+                      <>
+                        <li>• Celebrate every problem you solve</li>
+                        <li>• Your unique perspective adds value</li>
+                        <li>• Imposter syndrome affects everyone</li>
+                        <li>• You're learning and growing constantly</li>
+                      </>
+                    )}
+                    {selectedTopic === 'salary-negotiation' && (
+                      <>
+                        <li>• Know your market value</li>
+                        <li>• Document your achievements</li>
+                        <li>• Practice your pitch</li>
+                        <li>• You deserve fair compensation</li>
+                      </>
+                    )}
+                  </ul>
+                </div>
+                
+                <button 
+                  onClick={() => setConfidenceBuilderStep('topic-selection')}
+                  className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Back to Topics
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {confidenceBuilderStep === 'analysis' && (
           <div className="grid lg:grid-cols-2 gap-6">
@@ -1154,13 +1427,28 @@ const PathFinderPro = () => {
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border">
             <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
               <Brain className="w-5 h-5 text-purple-500 mr-2" />
-              🎯 Job Confidence Builder
+              🎯 Universal Confidence Builder
             </h3>
             <p className="text-sm text-gray-700 mb-4">
-              Found a job you love but feeling unsure? Let's build your confidence with skill analysis and interview practice!
+              Build confidence in job applications, technical skills, or salary negotiations. Get personalized support with affirmative language designed to empower you!
             </p>
             
+            <button 
+              onClick={() => {
+                setCurrentStep('confidence-builder');
+                setConfidenceBuilderStep('topic-selection');
+                setSelectedTopic(null);
+                setSelectedJob(null);
+                setChatMessages([]);
+                setConfidenceScore(65);
+              }}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity mb-4"
+            >
+              Start Confidence Building
+            </button>
+            
             <div className="space-y-3">
+              <h4 className="font-semibold text-gray-900 text-sm">Quick Job Analysis:</h4>
               {mockJobs.map(job => {
                 const match = calculateJobMatch(job);
                 return (
@@ -1183,10 +1471,10 @@ const PathFinderPro = () => {
                       </div>
                     </div>
                     <button 
-                      onClick={() => startConfidenceBuilder(job)}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
+                      onClick={() => startConfidenceBuilder('job-application', job)}
+                      className="w-full bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
                     >
-                      Build My Confidence
+                      Analyze This Job
                     </button>
                   </div>
                 );
