@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus, MessageCircle, Calendar, MapPin, Coffee, Video, Globe, UserCheck, Sparkles, Award, Network } from 'lucide-react';
 
 const PathFinderPro = () => {
   const [currentStep, setCurrentStep] = useState('welcome');
@@ -155,6 +155,159 @@ const PathFinderPro = () => {
     { skill: "Cloud Architecture", demand: 87, growth: "+38%" },
     { skill: "DevOps", demand: 82, growth: "+29%" },
     { skill: "React/Frontend", demand: 76, growth: "+22%" }
+  ];
+
+  // Community data
+  const communityGroups = [
+    {
+      id: 1,
+      name: "Women in AI/ML",
+      members: 1247,
+      description: "Connect with women building the future of artificial intelligence",
+      category: "Technology",
+      isJoined: true,
+      trending: true,
+      lastActivity: "2 hours ago"
+    },
+    {
+      id: 2,
+      name: "Career Changers Support",
+      members: 892,
+      description: "Support group for women transitioning into tech careers",
+      category: "Career Development",
+      isJoined: false,
+      trending: true,
+      lastActivity: "4 hours ago"
+    },
+    {
+      id: 3,
+      name: "Working Mothers in Tech",
+      members: 634,
+      description: "Balancing family and tech careers with flexible networking",
+      category: "Work-Life Balance",
+      isJoined: true,
+      trending: false,
+      lastActivity: "1 day ago"
+    },
+    {
+      id: 4,
+      name: "Frontend to Fullstack Journey",
+      members: 456,
+      description: "Frontend developers expanding to backend technologies",
+      category: "Skill Development",
+      isJoined: false,
+      trending: false,
+      lastActivity: "6 hours ago"
+    }
+  ];
+
+  const upcomingEvents = [
+    {
+      id: 1,
+      title: "Women in Tech Leadership Panel",
+      date: "2025-07-02",
+      time: "18:00",
+      type: "virtual",
+      location: "Online",
+      attendees: 234,
+      category: "Leadership"
+    },
+    {
+      id: 2,
+      title: "AI/ML Study Group Meetup",
+      date: "2025-06-28",
+      time: "19:00",
+      type: "local",
+      location: "London Tech Hub",
+      attendees: 45,
+      category: "Learning"
+    },
+    {
+      id: 3,
+      title: "Career Transition Workshop",
+      date: "2025-06-30",
+      time: "17:30",
+      type: "virtual",
+      location: "Online",
+      attendees: 156,
+      category: "Career Development"
+    }
+  ];
+
+  const mentorSpotlight = [
+    {
+      name: "Sarah Chen",
+      role: "Engineering Manager",
+      company: "Meta",
+      specialty: "Frontend to Management",
+      rating: 4.9,
+      sessions: 127,
+      available: true
+    },
+    {
+      name: "Dr. Priya Patel",
+      role: "Senior Data Scientist",
+      company: "DeepMind",
+      specialty: "Career Transitions",
+      rating: 4.8,
+      sessions: 89,
+      available: true
+    },
+    {
+      name: "Maria Rodriguez",
+      role: "VP of Engineering",
+      company: "Stripe",
+      specialty: "Leadership Development",
+      rating: 4.9,
+      sessions: 203,
+      available: false
+    }
+  ];
+
+  const careerConnections = [
+    {
+      name: "Emma Thompson",
+      currentRole: "Frontend Developer",
+      targetRole: "Product Manager",
+      progress: 65,
+      sharedGoals: ["Product Strategy", "User Research"],
+      lastActive: "1 hour ago"
+    },
+    {
+      name: "Aisha Kumar",
+      currentRole: "Software Engineer", 
+      targetRole: "Data Scientist",
+      progress: 40,
+      sharedGoals: ["Python", "Machine Learning"],
+      lastActive: "3 hours ago"
+    },
+    {
+      name: "Lisa Wang",
+      currentRole: "QA Engineer",
+      targetRole: "DevOps Engineer",
+      progress: 78,
+      sharedGoals: ["AWS", "Kubernetes"],
+      lastActive: "2 days ago"
+    }
+  ];
+
+  const successStories = [
+    {
+      name: "Jennifer Adams",
+      transition: "Frontend Dev → Engineering Manager",
+      timeframe: "18 months",
+      story: "Started leading small projects, took management courses, found an amazing mentor through this community.",
+      company: "Spotify",
+      likes: 34
+    },
+    {
+      name: "Rachel Kim", 
+      transition: "Bootcamp Grad → Senior Developer",
+      timeframe: "3 years",
+      story: "Consistent learning, contributing to open source, and the support from my study group made all the difference.",
+      company: "GitHub",
+      likes: 28
+    }
   ];
 
   const renderWelcome = () => (
@@ -569,11 +722,326 @@ const PathFinderPro = () => {
     </div>
   );
 
+  const renderCommunity = () => (
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Hub</h2>
+        <p className="text-gray-600">Connect, learn, and grow with women in tech worldwide</p>
+      </div>
+
+      {/* Quick Stats Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white rounded-lg p-4 shadow-sm border">
+          <div className="flex items-center">
+            <Users className="w-8 h-8 text-purple-600" />
+            <div className="ml-3">
+              <p className="text-2xl font-bold text-gray-900">4.2k</p>
+              <p className="text-sm text-gray-600">Community Members</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border">
+          <div className="flex items-center">
+            <Calendar className="w-8 h-8 text-blue-600" />
+            <div className="ml-3">
+              <p className="text-2xl font-bold text-gray-900">127</p>
+              <p className="text-sm text-gray-600">Events This Month</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border">
+          <div className="flex items-center">
+            <Coffee className="w-8 h-8 text-orange-600" />
+            <div className="ml-3">
+              <p className="text-2xl font-bold text-gray-900">89</p>
+              <p className="text-sm text-gray-600">Mentorship Sessions</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border">
+          <div className="flex items-center">
+            <Trophy className="w-8 h-8 text-yellow-600" />
+            <div className="ml-3">
+              <p className="text-2xl font-bold text-gray-900">156</p>
+              <p className="text-sm text-gray-600">Success Stories</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* My Groups */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                <Users className="w-5 h-5 text-purple-600 mr-2" />
+                My Groups
+              </h3>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setCurrentStep('dashboard')}
+                  className="flex items-center px-3 py-1 text-gray-600 hover:text-gray-900 transition-colors text-sm"
+                >
+                  <Home className="w-4 h-4 mr-1" />
+                  Dashboard
+                </button>
+                <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                  Browse All Groups
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {communityGroups.filter(group => group.isJoined).map(group => (
+                <div key={group.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center">
+                        <h4 className="font-semibold text-gray-900">{group.name}</h4>
+                        {group.trending && (
+                          <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                            Trending
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{group.description}</p>
+                      <div className="flex items-center mt-2 text-xs text-gray-500">
+                        <Users className="w-3 h-3 mr-1" />
+                        {group.members} members
+                        <span className="mx-2">•</span>
+                        <Clock className="w-3 h-3 mr-1" />
+                        Last activity {group.lastActivity}
+                      </div>
+                    </div>
+                    <button className="ml-4 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium hover:bg-purple-200">
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Upcoming Events */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                <Calendar className="w-5 h-5 text-blue-600 mr-2" />
+                Upcoming Events
+              </h3>
+              <div className="flex gap-2">
+                <button className="px-3 py-1 text-xs border border-gray-300 rounded-full hover:bg-gray-50">
+                  Local
+                </button>
+                <button className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+                  Virtual
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {upcomingEvents.map(event => (
+                <div key={event.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{event.title}</h4>
+                      <div className="flex items-center mt-2 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {event.date} at {event.time}
+                        <span className="mx-2">•</span>
+                        {event.type === 'virtual' ? (
+                          <><Video className="w-4 h-4 mr-1" /> Virtual</>
+                        ) : (
+                          <><MapPin className="w-4 h-4 mr-1" /> {event.location}</>
+                        )}
+                      </div>
+                      <div className="flex items-center mt-1 text-xs text-gray-500">
+                        <Users className="w-3 h-3 mr-1" />
+                        {event.attendees} attending
+                      </div>
+                    </div>
+                    <button className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                      Join
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Career Connections */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <Network className="w-5 h-5 text-green-600 mr-2" />
+              Career Connections
+              <span className="ml-2 text-sm font-normal text-gray-500">People on similar journeys</span>
+            </h3>
+            
+            <div className="space-y-4">
+              {careerConnections.map((connection, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm">
+                          {connection.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{connection.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          {connection.currentRole} → {connection.targetRole}
+                        </p>
+                        <div className="flex items-center mt-1">
+                          <div className="w-20 bg-gray-200 rounded-full h-1.5 mr-2">
+                            <div 
+                              className="bg-green-500 h-1.5 rounded-full" 
+                              style={{width: `${connection.progress}%`}}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-500">{connection.progress}% progress</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="px-3 py-1 border border-purple-300 text-purple-600 rounded-full text-xs font-medium hover:bg-purple-50">
+                      Connect
+                    </button>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {connection.sharedGoals.map((goal, i) => (
+                      <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                        {goal}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Mentor Spotlight */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <Star className="w-5 h-5 text-yellow-500 mr-2" />
+              Featured Mentors
+            </h3>
+            
+            <div className="space-y-4">
+              {mentorSpotlight.map((mentor, index) => (
+                <div key={index} className="border rounded-lg p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 text-sm">{mentor.name}</h4>
+                      <p className="text-xs text-gray-600">{mentor.role} at {mentor.company}</p>
+                      <p className="text-xs text-purple-600 font-medium">{mentor.specialty}</p>
+                    </div>
+                    <div className={`w-2 h-2 rounded-full ${mentor.available ? 'bg-green-400' : 'bg-gray-300'}`}></div>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center">
+                      <Star className="w-3 h-3 text-yellow-400 mr-1" />
+                      {mentor.rating} ({mentor.sessions} sessions)
+                    </div>
+                    {mentor.available && (
+                      <button className="text-purple-600 hover:text-purple-700 font-medium">
+                        Book
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <button className="w-full mt-4 text-purple-600 py-2 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors text-sm font-medium">
+              Browse All Mentors
+            </button>
+          </div>
+
+          {/* Success Stories */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <Sparkles className="w-5 h-5 text-green-600 mr-2" />
+              Success Stories
+            </h3>
+            
+            <div className="space-y-4">
+              {successStories.map((story, index) => (
+                <div key={index} className="bg-white rounded-lg p-4 border border-green-100">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <Award className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 text-sm">{story.name}</h4>
+                      <p className="text-xs text-green-700 font-medium">{story.transition}</p>
+                      <p className="text-xs text-gray-600 mt-1">{story.story}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-gray-500">{story.company} • {story.timeframe}</span>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Heart className="w-3 h-3 mr-1" />
+                          {story.likes}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="space-y-3">
+              <button className="w-full flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                <Coffee className="w-4 h-4 mr-2" />
+                Schedule Coffee Chat
+              </button>
+              <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Join Discussion
+              </button>
+              <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <Users className="w-4 h-4 mr-2" />
+                Start Study Group
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderDashboard = () => (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Personalized Career Dashboard</h2>
-        <p className="text-gray-600">Based on current market data and women's career progression patterns</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Personalized Career Dashboard</h2>
+            <p className="text-gray-600">Based on current market data and women's career progression patterns</p>
+          </div>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setCurrentStep('community')}
+              className="flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Community
+            </button>
+            <button 
+              onClick={() => setCurrentStep('welcome')}
+              className="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
@@ -614,12 +1082,63 @@ const PathFinderPro = () => {
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mb-3">
                     {path.skillsNeeded.map((skill, i) => (
                       <span key={i} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                         {skill}
                       </span>
                     ))}
+                  </div>
+
+                  {/* Community Recommendations */}
+                  <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                    <h5 className="font-medium text-purple-900 text-sm mb-2 flex items-center">
+                      <Users className="w-4 h-4 mr-1" />
+                      Community Connections
+                    </h5>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-700">
+                          {path.title === "Senior Software Engineer" ? "12 women made this transition" : 
+                           path.title === "Engineering Manager" ? "8 women in leadership roles" :
+                           path.title === "Product Manager" ? "15 women transitioned from tech" :
+                           "6 women in technical leadership"}
+                        </span>
+                        <button 
+                          onClick={() => setCurrentStep('community')}
+                          className="text-purple-600 hover:text-purple-700 font-medium text-xs"
+                        >
+                          Connect
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-700">
+                          {path.title === "Senior Software Engineer" ? "3 study groups learning system design" : 
+                           path.title === "Engineering Manager" ? "Leadership mentorship program" :
+                           path.title === "Product Manager" ? "PM transition support group" :
+                           "Technical leadership circle"}
+                        </span>
+                        <button 
+                          onClick={() => setCurrentStep('community')}
+                          className="text-purple-600 hover:text-purple-700 font-medium text-xs"
+                        >
+                          Join
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-700">Available mentors: 
+                          {path.title === "Senior Software Engineer" ? " 5" : 
+                           path.title === "Engineering Manager" ? " 3" :
+                           path.title === "Product Manager" ? " 7" : " 4"}
+                        </span>
+                        <button 
+                          onClick={() => setCurrentStep('community')}
+                          className="text-purple-600 hover:text-purple-700 font-medium text-xs"
+                        >
+                          View
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -682,7 +1201,10 @@ const PathFinderPro = () => {
                 </div>
                 <Star className="w-4 h-4 text-yellow-500" />
               </div>
-              <button className="w-full text-purple-600 py-2 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+              <button 
+                onClick={() => setCurrentStep('community')}
+                className="w-full text-purple-600 py-2 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
+              >
                 View All Mentors
               </button>
             </div>
@@ -697,6 +1219,7 @@ const PathFinderPro = () => {
       {currentStep === 'welcome' && renderWelcome()}
       {currentStep === 'assessment' && renderAssessment()}
       {currentStep === 'dashboard' && renderDashboard()}
+      {currentStep === 'community' && renderCommunity()}
     </div>
   );
 };
