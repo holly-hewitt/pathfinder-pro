@@ -1,15 +1,115 @@
 import React, { useState } from 'react';
-import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus } from 'lucide-react';
 
 const PathFinderPro = () => {
   const [currentStep, setCurrentStep] = useState('welcome');
   const [userProfile, setUserProfile] = useState({
     currentRole: '',
     experience: '',
-    skills: [],
-    interests: [],
-    goals: ''
+    careerHistory: [],
+    skills: {},
+    currentGoals: [''],
+    longTermGoals: [''],
+    goalTypes: [],
+    linkedinConnected: false
   });
+
+  const [assessmentStep, setAssessmentStep] = useState(1);
+
+  const allSkills = [
+    'JavaScript', 'React', 'Python', 'Node.js', 'AWS', 'Git', 'SQL', 'Java', 
+    'Docker', 'Kubernetes', 'TypeScript', 'Vue.js', 'Angular', 'MongoDB', 
+    'PostgreSQL', 'Redis', 'GraphQL', 'REST APIs', 'Microservices', 
+    'Machine Learning', 'Data Analysis', 'Product Management', 'UI/UX Design',
+    'DevOps', 'CI/CD', 'Terraform', 'Azure', 'GCP', 'Agile', 'Scrum',
+    'Leadership', 'Project Management', 'Technical Writing', 'System Design'
+  ];
+
+  const goalTypes = [
+    { id: 'salary', label: 'High Earning Potential', icon: DollarSign },
+    { id: 'worklife', label: 'Work-Life Balance', icon: Home },
+    { id: 'growth', label: 'Rapid Career Growth', icon: TrendingUp },
+    { id: 'impact', label: 'Making a Difference', icon: Heart },
+    { id: 'leadership', label: 'Leading Teams', icon: Users },
+    { id: 'innovation', label: 'Cutting-Edge Technology', icon: Lightbulb },
+    { id: 'stability', label: 'Job Security', icon: Target },
+    { id: 'recognition', label: 'Industry Recognition', icon: Trophy }
+  ];
+
+  const addCareerEntry = () => {
+    setUserProfile({
+      ...userProfile, 
+      careerHistory: [...userProfile.careerHistory, { 
+        role: '', 
+        company: '', 
+        duration: '', 
+        achievements: '', 
+        liked: '', 
+        disliked: '',
+        satisfaction: 5,
+        learning: 5,
+        worklife: 5,
+        growth: 5
+      }]
+    });
+  };
+
+  const updateCareerEntry = (index, field, value) => {
+    const newHistory = [...userProfile.careerHistory];
+    newHistory[index][field] = value;
+    setUserProfile({...userProfile, careerHistory: newHistory});
+  };
+
+  const updateSkill = (skill, field, value) => {
+    setUserProfile({
+      ...userProfile,
+      skills: {
+        ...userProfile.skills,
+        [skill]: {
+          ...userProfile.skills[skill],
+          [field]: value
+        }
+      }
+    });
+  };
+
+  const toggleGoalType = (goalId) => {
+    const newGoalTypes = userProfile.goalTypes.includes(goalId)
+      ? userProfile.goalTypes.filter(id => id !== goalId)
+      : [...userProfile.goalTypes, goalId];
+    setUserProfile({...userProfile, goalTypes: newGoalTypes});
+  };
+
+  const addGoal = (type) => {
+    setUserProfile({
+      ...userProfile,
+      [type]: [...userProfile[type], '']
+    });
+  };
+
+  const updateGoal = (type, index, value) => {
+    const newGoals = [...userProfile[type]];
+    newGoals[index] = value;
+    setUserProfile({...userProfile, [type]: newGoals});
+  };
+
+  const removeGoal = (type, index) => {
+    const newGoals = userProfile[type].filter((_, i) => i !== index);
+    setUserProfile({...userProfile, [type]: newGoals});
+  };
+
+  const simulateLinkedInImport = () => {
+    setUserProfile({
+      ...userProfile,
+      linkedinConnected: true,
+      currentRole: 'Frontend Developer',
+      experience: '2-4',
+      careerHistory: [
+        { role: 'Junior Developer', company: 'Tech Startup Ltd', duration: '2022-2024', achievements: 'Built responsive web applications, collaborated in agile team', liked: 'Great team collaboration and learning opportunities', disliked: 'Limited mentorship and unclear career progression', satisfaction: 7, learning: 8, worklife: 6, growth: 5 },
+        { role: 'Intern', company: 'Digital Agency', duration: '2021-2022', achievements: 'Assisted with website development, learned modern frameworks', liked: 'Exposure to different technologies and client work', disliked: 'Repetitive tasks and minimal responsibility', satisfaction: 6, learning: 7, worklife: 8, growth: 4 }
+      ]
+    });
+  };
 
   const careerPaths = [
     {
@@ -102,91 +202,368 @@ const PathFinderPro = () => {
   );
 
   const renderAssessment = () => (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Career Assessment</h2>
-        <p className="text-gray-600">Tell us about your current situation so we can create your personalized pathway</p>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Enhanced Career Assessment</h2>
+        <p className="text-gray-600">Step {assessmentStep} of 4 - Building your comprehensive career profile</p>
+        
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+          <div 
+            className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-300" 
+            style={{width: `${(assessmentStep / 4) * 100}%`}}
+          ></div>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Current Role</label>
-            <input 
-              type="text" 
-              placeholder="e.g., Frontend Developer, Software Engineer"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={userProfile.currentRole}
-              onChange={(e) => setUserProfile({...userProfile, currentRole: e.target.value})}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
-            <select 
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={userProfile.experience}
-              onChange={(e) => setUserProfile({...userProfile, experience: e.target.value})}
-            >
-              <option value="">Select experience level</option>
-              <option value="0-1">0-1 years (Entry Level)</option>
-              <option value="2-4">2-4 years (Junior)</option>
-              <option value="5-7">5-7 years (Mid-Level)</option>
-              <option value="8+">8+ years (Senior)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Top Skills (select up to 5)</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {['JavaScript', 'React', 'Python', 'Node.js', 'AWS', 'Git', 'SQL', 'Java', 'Docker'].map(skill => (
+        {assessmentStep === 1 && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Profile Import & Basic Info</h3>
+            
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="font-semibold text-blue-900 mb-2">Quick Import Options</h4>
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button 
-                  key={skill}
-                  onClick={() => {
-                    const newSkills = userProfile.skills.includes(skill) 
-                      ? userProfile.skills.filter(s => s !== skill)
-                      : userProfile.skills.length < 5 ? [...userProfile.skills, skill] : userProfile.skills;
-                    setUserProfile({...userProfile, skills: newSkills});
-                  }}
-                  className={`p-2 rounded-lg border text-sm font-medium transition-colors ${
-                    userProfile.skills.includes(skill) 
-                      ? 'bg-purple-100 border-purple-500 text-purple-700' 
-                      : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
-                  }`}
+                  onClick={simulateLinkedInImport}
+                  className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {skill}
+                  <Linkedin className="w-4 h-4 mr-2" />
+                  {userProfile.linkedinConnected ? 'LinkedIn Connected ✓' : 'Import from LinkedIn'}
                 </button>
+                <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload CV/Resume
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Current Role</label>
+              <input 
+                type="text" 
+                placeholder="e.g., Frontend Developer, Software Engineer"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                value={userProfile.currentRole}
+                onChange={(e) => setUserProfile({...userProfile, currentRole: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
+              <select 
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                value={userProfile.experience}
+                onChange={(e) => setUserProfile({...userProfile, experience: e.target.value})}
+              >
+                <option value="">Select experience level</option>
+                <option value="0-1">0-1 years (Entry Level)</option>
+                <option value="2-4">2-4 years (Junior)</option>
+                <option value="5-7">5-7 years (Mid-Level)</option>
+                <option value="8+">8+ years (Senior)</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {assessmentStep === 2 && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">Career History</h3>
+              <button 
+                onClick={() => setCurrentStep('welcome')}
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <Home className="w-4 h-4 mr-1" />
+                Back to Home
+              </button>
+            </div>
+            
+            {userProfile.careerHistory.map((entry, index) => (
+              <div key={index} className="border rounded-lg p-6 bg-gray-50">
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <input 
+                    type="text" 
+                    placeholder="Job Title"
+                    className="p-3 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    value={entry.role}
+                    onChange={(e) => updateCareerEntry(index, 'role', e.target.value)}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Company Name"
+                    className="p-3 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    value={entry.company}
+                    onChange={(e) => updateCareerEntry(index, 'company', e.target.value)}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <input 
+                    type="text" 
+                    placeholder="Duration (e.g., 2022-2024)"
+                    className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    value={entry.duration}
+                    onChange={(e) => updateCareerEntry(index, 'duration', e.target.value)}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <textarea 
+                    placeholder="Key achievements and responsibilities"
+                    rows={2}
+                    className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    value={entry.achievements}
+                    onChange={(e) => updateCareerEntry(index, 'achievements', e.target.value)}
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">What you enjoyed most</label>
+                    <textarea 
+                      placeholder="Aspects of this role that you found fulfilling or exciting"
+                      rows={2}
+                      className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      value={entry.liked}
+                      onChange={(e) => updateCareerEntry(index, 'liked', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">What you found challenging</label>
+                    <textarea 
+                      placeholder="Aspects that were difficult or less enjoyable"
+                      rows={2}
+                      className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      value={entry.disliked}
+                      onChange={(e) => updateCareerEntry(index, 'disliked', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 rounded border">
+                  <h4 className="font-medium text-gray-900 mb-3">Rate your experience (1-10)</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { key: 'satisfaction', label: 'Overall Satisfaction' },
+                      { key: 'learning', label: 'Learning Opportunities' },
+                      { key: 'worklife', label: 'Work-Life Balance' },
+                      { key: 'growth', label: 'Career Growth' }
+                    ].map(factor => (
+                      <div key={factor.key}>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">{factor.label}</label>
+                        <select 
+                          className="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          value={entry[factor.key] || 5}
+                          onChange={(e) => updateCareerEntry(index, factor.key, parseInt(e.target.value))}
+                        >
+                          {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                            <option key={num} value={num}>{num}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            <button 
+              onClick={addCareerEntry}
+              className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-purple-400 hover:text-purple-600 transition-colors flex items-center justify-center"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Another Role
+            </button>
+          </div>
+        )}
+
+        {assessmentStep === 3 && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">Skills Assessment</h3>
+              <button 
+                onClick={() => setCurrentStep('welcome')}
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <Home className="w-4 h-4 mr-1" />
+                Back to Home
+              </button>
+            </div>
+            
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="font-semibold text-blue-900 mb-2">How to use this assessment:</h4>
+              <div className="text-sm text-blue-800 space-y-1">
+                <p>• <strong>Leave skills blank</strong> if you have no experience with them</p>
+                <p>• <strong>❤️ Heart:</strong> Skills you love working with</p>
+                <p>• <strong>👍 Thumbs up:</strong> Skills you enjoy using</p>
+                <p>• <strong>👎 Thumbs down:</strong> Skills you don't enjoy or want to avoid</p>
+              </div>
+            </div>
+            
+            <div className="grid gap-4 max-h-96 overflow-y-auto">
+              {allSkills.map(skill => (
+                <div key={skill} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-medium text-gray-900">{skill}</span>
+                    <div className="flex items-center space-x-2">
+                      <button 
+                        onClick={() => updateSkill(skill, 'enjoy', userProfile.skills[skill]?.enjoy === 'love' ? null : 'love')}
+                        className={`p-1 rounded ${userProfile.skills[skill]?.enjoy === 'love' ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-red-500'}`}
+                        title="Love this skill"
+                      >
+                        <Heart className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => updateSkill(skill, 'enjoy', userProfile.skills[skill]?.enjoy === 'like' ? null : 'like')}
+                        className={`p-1 rounded ${userProfile.skills[skill]?.enjoy === 'like' ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-green-500'}`}
+                        title="Enjoy this skill"
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => updateSkill(skill, 'enjoy', userProfile.skills[skill]?.enjoy === 'dislike' ? null : 'dislike')}
+                        className={`p-1 rounded ${userProfile.skills[skill]?.enjoy === 'dislike' ? 'bg-red-100 text-red-600' : 'text-gray-400 hover:text-red-500'}`}
+                        title="Don't enjoy this skill"
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <button 
+                      onClick={() => updateSkill(skill, 'level', userProfile.skills[skill]?.level === 'expert' ? null : 'expert')}
+                      className={`p-2 rounded text-sm font-medium transition-colors ${
+                        userProfile.skills[skill]?.level === 'expert' 
+                          ? 'bg-purple-100 border-purple-500 text-purple-700 border' 
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 border'
+                      }`}
+                    >
+                      I use this regularly
+                    </button>
+                    <button 
+                      onClick={() => updateSkill(skill, 'level', userProfile.skills[skill]?.level === 'some' ? null : 'some')}
+                      className={`p-2 rounded text-sm font-medium transition-colors ${
+                        userProfile.skills[skill]?.level === 'some' 
+                          ? 'bg-blue-100 border-blue-500 text-blue-700 border' 
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 border'
+                      }`}
+                    >
+                      I use this occasionally
+                    </button>
+                    <button 
+                      onClick={() => updateSkill(skill, 'level', userProfile.skills[skill]?.level === 'rusty' ? null : 'rusty')}
+                      className={`p-2 rounded text-sm font-medium transition-colors ${
+                        userProfile.skills[skill]?.level === 'rusty' 
+                          ? 'bg-orange-100 border-orange-500 text-orange-700 border' 
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 border'
+                      }`}
+                    >
+                      Used before, but rusty
+                    </button>
+                    <button 
+                      onClick={() => updateSkill(skill, 'level', userProfile.skills[skill]?.level === 'theoretical' ? null : 'theoretical')}
+                      className={`p-2 rounded text-sm font-medium transition-colors ${
+                        userProfile.skills[skill]?.level === 'theoretical' 
+                          ? 'bg-yellow-100 border-yellow-500 text-yellow-700 border' 
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 border'
+                      }`}
+                    >
+                      I've studied this but no hands-on experience
+                    </button>
+                    <button 
+                      onClick={() => updateSkill(skill, 'level', userProfile.skills[skill]?.level === 'want' ? null : 'want')}
+                      className={`p-2 rounded text-sm font-medium transition-colors md:col-span-2 ${
+                        userProfile.skills[skill]?.level === 'want' 
+                          ? 'bg-green-100 border-green-500 text-green-700 border' 
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 border'
+                      }`}
+                    >
+                      I would like to develop this skill
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Career Goals</label>
-            <textarea 
-              placeholder="What do you want to achieve in your tech career?"
-              rows={3}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={userProfile.goals}
-              onChange={(e) => setUserProfile({...userProfile, goals: e.target.value})}
-            />
+        {assessmentStep === 4 && (
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Goals & Aspirations</h3>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Current Development Goals (6-12 months)</label>
+              <textarea 
+                placeholder="What skills do you want to develop or roles do you want to explore in the near term?"
+                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                value={userProfile.currentGoals}
+                onChange={(e) => setUserProfile({...userProfile, currentGoals: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Long-term Career Vision (2-5 years)</label>
+              <textarea 
+                placeholder="Describe your dream role, company type, or career achievements you want to reach"
+                rows={3}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                value={userProfile.longTermGoals}
+                onChange={(e) => setUserProfile({...userProfile, longTermGoals: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">What matters most to you? (Select all that apply)</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {goalTypes.map(goal => {
+                  const Icon = goal.icon;
+                  return (
+                    <button 
+                      key={goal.id}
+                      onClick={() => toggleGoalType(goal.id)}
+                      className={`p-3 rounded-lg border text-sm font-medium transition-colors flex items-center ${
+                        userProfile.goalTypes.includes(goal.id) 
+                          ? 'bg-purple-100 border-purple-500 text-purple-700' 
+                          : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 mr-2" />
+                      {goal.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-8 flex justify-between">
           <button 
-            onClick={() => setCurrentStep('welcome')}
+            onClick={() => assessmentStep > 1 ? setAssessmentStep(assessmentStep - 1) : setCurrentStep('welcome')}
             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
           >
             Back
           </button>
-          <button 
-            onClick={() => setCurrentStep('dashboard')}
-            className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 flex items-center"
-            disabled={!userProfile.currentRole || !userProfile.experience}
-          >
-            Generate My Career Path
-            <ArrowRight className="ml-2 w-4 h-4" />
-          </button>
+          
+          {assessmentStep < 4 ? (
+            <button 
+              onClick={() => setAssessmentStep(assessmentStep + 1)}
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 flex items-center"
+            >
+              Next Step
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </button>
+          ) : (
+            <button 
+              onClick={() => setCurrentStep('dashboard')}
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 flex items-center"
+            >
+              Generate My Personalized Path
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>
