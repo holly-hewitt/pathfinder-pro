@@ -5,6 +5,11 @@ const PathFinderPro = () => {
   const [currentStep, setCurrentStep] = useState('welcome');
   const [selectedCareerPath, setSelectedCareerPath] = useState(null);
   const [journeyView, setJourneyView] = useState(false);
+  const [timelineView, setTimelineView] = useState(false);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [journeyProgress, setJourneyProgress] = useState({});
+  const [customTimeline, setCustomTimeline] = useState({});
+  const [draggedNode, setDraggedNode] = useState(null);
   const [userProfile, setUserProfile] = useState({
     currentRole: '',
     experience: '',
@@ -113,12 +118,174 @@ const PathFinderPro = () => {
     });
   };
 
+  // Phase 2: Progress tracking and assessment integration functions
+  const updateNodeStatus = (nodeId, status) => {
+    setJourneyProgress(prev => ({
+      ...prev,
+      [nodeId]: {
+        ...prev[nodeId],
+        status: status,
+        updatedAt: new Date().toISOString(),
+        progress: status === 'completed' ? 100 : status === 'in-progress' ? 50 : 0
+      }
+    }));
+  };
+
+  const personalizeJourneyBasedOnAssessment = (journey) => {
+    if (!journey || !userProfile.skills) return journey;
+    
+    return {
+      ...journey,
+      nodes: journey.nodes.map(node => {
+        let personalizedNode = { ...node };
+        
+        // Check if user has relevant skills
+        const relevantSkills = Object.keys(userProfile.skills).filter(skill => 
+          node.title.toLowerCase().includes(skill.toLowerCase()) ||
+          node.resources.some(resource => resource.toLowerCase().includes(skill.toLowerCase()))
+        );
+        
+        if (relevantSkills.length > 0) {
+          const userSkill = userProfile.skills[relevantSkills[0]];
+          
+          // Adjust based on user's skill level
+          if (userSkill?.level === 'expert') {
+            personalizedNode.status = 'completed';
+            personalizedNode.priority = 'low';
+            personalizedNode.timeInvestment = Math.max(parseInt(personalizedNode.timeInvestment) * 0.5, 5) + 'h';
+            personalizedNode.recommended = false;
+          } else if (userSkill?.level === 'want') {
+            personalizedNode.priority = 'high';
+            personalizedNode.recommended = true;
+          } else if (userSkill?.level === 'some' || userSkill?.level === 'rusty') {
+            personalizedNode.timeInvestment = Math.max(parseInt(personalizedNode.timeInvestment) * 0.7, 5) + 'h';
+            personalizedNode.recommended = true;
+          }
+        }
+        
+        // Adjust based on user's goals
+        if (userProfile.goalTypes.includes('growth') && node.type === 'milestone') {
+          personalizedNode.priority = 'high';
+        }
+        if (userProfile.goalTypes.includes('leadership') && node.title.toLowerCase().includes('lead')) {
+          personalizedNode.priority = 'high';
+          personalizedNode.recommended = true;
+        }
+        
+        return personalizedNode;
+      })
+    };
+  };
+
+  const simulateExternalIntegration = (nodeId, action) => {
+    // Mock external platform integration
+    const integrations = {
+      'course-completed': () => ({
+        platform: 'Coursera',
+        message: 'Course completion detected!',
+        progress: 100
+      }),
+      'github-activity': () => ({
+        platform: 'GitHub',
+        message: 'New repository activity detected!',
+        progress: 25
+      }),
+      'linkedin-connection': () => ({
+        platform: 'LinkedIn',
+        message: 'New professional connection made!',
+        progress: 15
+      }),
+      'event-attended': () => ({
+        platform: 'Eventbrite',
+        message: 'Event attendance confirmed!',
+        progress: 20
+      })
+    };
+    
+    const result = integrations[action] ? integrations[action]() : null;
+    if (result) {
+      // Update node progress
+      setJourneyProgress(prev => ({
+        ...prev,
+        [nodeId]: {
+          ...prev[nodeId],
+          progress: Math.min((prev[nodeId]?.progress || 0) + result.progress, 100),
+          lastUpdate: result,
+          updatedAt: new Date().toISOString()
+        }
+      }));
+    }
+    return result;
+  };
+
+  const calculateJourneyProgress = (journey) => {
+    if (!journey) return { completed: 0, inProgress: 0, total: journey?.nodes.length || 0 };
+    
+    const completed = journey.nodes.filter(node => 
+      journeyProgress[node.id]?.status === 'completed' || node.status === 'completed'
+    ).length;
+    
+    const inProgress = journey.nodes.filter(node => 
+      journeyProgress[node.id]?.status === 'in-progress' || node.status === 'in-progress'
+    ).length;
+    
+    return {
+      completed,
+      inProgress,
+      total: journey.nodes.length,
+      percentage: Math.round((completed / journey.nodes.length) * 100)
+    };
+  };
+
+  // Phase 3: Timeline drag-and-drop functionality
+  const handleDragStart = (e, node) => {
+    setDraggedNode(node);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.outerHTML);
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = '1';
+    setDraggedNode(null);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, targetMonth) => {
+    e.preventDefault();
+    if (draggedNode) {
+      const newCustomTimeline = { ...customTimeline };
+      if (!newCustomTimeline[selectedCareerPath?.title]) {
+        newCustomTimeline[selectedCareerPath?.title] = {};
+      }
+      
+      // Update the node's month in custom timeline
+      newCustomTimeline[selectedCareerPath?.title][draggedNode.id] = {
+        ...draggedNode,
+        month: targetMonth,
+        customPlacement: true
+      };
+      
+      setCustomTimeline(newCustomTimeline);
+      setDraggedNode(null);
+    }
+  };
+
+  const getEffectiveNodeMonth = (node) => {
+    const customNode = customTimeline[selectedCareerPath?.title]?.[node.id];
+    return customNode ? customNode.month : node.month;
+  };
+
   const careerPaths = [
     {
       title: "Senior Software Engineer",
       growth: "+23%",
       timeframe: "18-24 months",
-      salary: "$120k-160k",
+      salary: "£60k-90k",
       confidence: 85,
       skillsNeeded: ["System Design", "Leadership", "Advanced React"],
       trending: true
@@ -127,7 +294,7 @@ const PathFinderPro = () => {
       title: "Engineering Manager",
       growth: "+31%",
       timeframe: "2-3 years",
-      salary: "$140k-180k",
+      salary: "£80k-120k",
       confidence: 72,
       skillsNeeded: ["Team Leadership", "Project Management", "Performance Management"],
       trending: true
@@ -136,7 +303,7 @@ const PathFinderPro = () => {
       title: "Product Manager",
       growth: "+19%",
       timeframe: "1-2 years",
-      salary: "$110k-150k",
+      salary: "£65k-95k",
       confidence: 68,
       skillsNeeded: ["Product Strategy", "Data Analysis", "User Research"],
       trending: false
@@ -145,7 +312,7 @@ const PathFinderPro = () => {
       title: "Technical Lead",
       growth: "+27%",
       timeframe: "12-18 months",
-      salary: "$130k-170k",
+      salary: "£70k-110k",
       confidence: 78,
       skillsNeeded: ["Architecture", "Mentoring", "Technical Strategy"],
       trending: true
@@ -384,8 +551,12 @@ const PathFinderPro = () => {
 
   // Journey Visualization Component
   const renderJourneyVisualization = () => {
-    const journey = journeyData[selectedCareerPath?.title];
-    if (!journey) return null;
+    const baseJourney = journeyData[selectedCareerPath?.title];
+    if (!baseJourney) return null;
+
+    // Apply personalization based on assessment data
+    const journey = personalizeJourneyBasedOnAssessment(baseJourney);
+    const progressStats = calculateJourneyProgress(journey);
 
     const getNodeIcon = (type) => {
       switch (type) {
@@ -400,25 +571,157 @@ const PathFinderPro = () => {
       }
     };
 
-    const getNodeColor = (type) => {
-      switch (type) {
-        case 'skill': return 'bg-blue-100 border-blue-500 text-blue-700';
-        case 'course': return 'bg-green-100 border-green-500 text-green-700';
-        case 'experience': return 'bg-purple-100 border-purple-500 text-purple-700';
-        case 'networking': return 'bg-pink-100 border-pink-500 text-pink-700';
-        case 'project': return 'bg-yellow-100 border-yellow-500 text-yellow-700';
-        case 'achievement': return 'bg-orange-100 border-orange-500 text-orange-700';
-        case 'milestone': return 'bg-red-100 border-red-500 text-red-700';
-        default: return 'bg-gray-100 border-gray-500 text-gray-700';
+    const getNodeColor = (type, node) => {
+      const baseColors = {
+        'skill': 'bg-blue-100 border-blue-500 text-blue-700',
+        'course': 'bg-green-100 border-green-500 text-green-700',
+        'experience': 'bg-purple-100 border-purple-500 text-purple-700',
+        'networking': 'bg-pink-100 border-pink-500 text-pink-700',
+        'project': 'bg-yellow-100 border-yellow-500 text-yellow-700',
+        'achievement': 'bg-orange-100 border-orange-500 text-orange-700',
+        'milestone': 'bg-red-100 border-red-500 text-red-700'
+      };
+      
+      const currentStatus = journeyProgress[node.id]?.status || node.status;
+      
+      if (currentStatus === 'completed') {
+        return 'bg-emerald-100 border-emerald-500 text-emerald-700';
+      } else if (currentStatus === 'in-progress') {
+        return 'bg-amber-100 border-amber-500 text-amber-700';
+      } else if (node.recommended) {
+        return 'bg-violet-100 border-violet-500 text-violet-700 ring-2 ring-violet-300';
       }
+      
+      return baseColors[type] || 'bg-gray-100 border-gray-500 text-gray-700';
     };
 
-    const getStatusIcon = (status) => {
-      switch (status) {
+    const getStatusIcon = (node) => {
+      const currentStatus = journeyProgress[node.id]?.status || node.status;
+      switch (currentStatus) {
         case 'completed': return CheckCircle;
         case 'in-progress': return Play;
         default: return Circle;
       }
+    };
+
+    const handleNodeClick = (node) => {
+      setSelectedNode(node);
+    };
+
+    const handleStatusUpdate = (nodeId, newStatus) => {
+      updateNodeStatus(nodeId, newStatus);
+      // Simulate external integration
+      if (newStatus === 'completed') {
+        simulateExternalIntegration(nodeId, 'course-completed');
+      } else if (newStatus === 'in-progress') {
+        simulateExternalIntegration(nodeId, 'github-activity');
+      }
+    };
+
+    const renderNodeDetailModal = () => {
+      if (!selectedNode) return null;
+      
+      const nodeProgress = journeyProgress[selectedNode.id] || {};
+      const currentStatus = nodeProgress.status || selectedNode.status;
+      
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">{selectedNode.title}</h3>
+                <button 
+                  onClick={() => setSelectedNode(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-gray-500">Status:</span>
+                  <div className="flex gap-2">
+                    {['not-started', 'in-progress', 'completed'].map(status => (
+                      <button
+                        key={status}
+                        onClick={() => handleStatusUpdate(selectedNode.id, status)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                          currentStatus === status 
+                            ? 'bg-purple-600 text-white' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {status.replace('-', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Month:</span>
+                    <p className="text-lg font-semibold">{selectedNode.month}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Time Investment:</span>
+                    <p className="text-lg font-semibold">{selectedNode.timeInvestment}</p>
+                  </div>
+                </div>
+                
+                {selectedNode.recommended && (
+                  <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+                    <p className="text-sm text-violet-800 font-medium">⭐ Recommended for you based on your assessment!</p>
+                  </div>
+                )}
+                
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Resources & Next Steps:</h4>
+                  <div className="space-y-2">
+                    {selectedNode.resources.map((resource, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span className="text-sm">{resource}</span>
+                        <button 
+                          onClick={() => simulateExternalIntegration(selectedNode.id, 'course-completed')}
+                          className="text-xs bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700"
+                        >
+                          Start
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {nodeProgress.lastUpdate && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm text-green-800">
+                      <strong>{nodeProgress.lastUpdate.platform}:</strong> {nodeProgress.lastUpdate.message}
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      Progress: +{nodeProgress.lastUpdate.progress}%
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex gap-2 pt-4 border-t">
+                  <button 
+                    onClick={() => simulateExternalIntegration(selectedNode.id, 'linkedin-connection')}
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
+                  >
+                    Find Connections
+                  </button>
+                  <button 
+                    onClick={() => simulateExternalIntegration(selectedNode.id, 'event-attended')}
+                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
+                  >
+                    Join Community
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
     };
 
     return (
@@ -441,6 +744,19 @@ const PathFinderPro = () => {
                 <span>📊 {journey.nodes.length} milestones</span>
                 <span>⏱️ ~{journey.nodes.reduce((total, node) => total + parseInt(node.timeInvestment), 0)}h total investment</span>
               </div>
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setTimelineView(!timelineView)}
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                  timelineView 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                {timelineView ? 'Grid View' : 'Timeline View'}
+              </button>
             </div>
           </div>
         </div>
@@ -477,72 +793,220 @@ const PathFinderPro = () => {
             </div>
           </div>
 
-          {/* Nodes Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {journey.nodes.map((node, index) => {
-              const NodeIcon = getNodeIcon(node.type);
-              const StatusIcon = getStatusIcon(node.status);
-              const nodeColors = getNodeColor(node.type);
-              
-              return (
-                <div 
-                  key={node.id} 
-                  className={`border-2 rounded-lg p-4 cursor-pointer hover:shadow-md transition-all ${nodeColors}`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center">
-                      <NodeIcon className="w-5 h-5 mr-2" />
-                      <span className="text-xs font-medium bg-white px-2 py-1 rounded">
-                        Month {node.month}
-                      </span>
+          {/* Timeline or Grid View */}
+          {timelineView ? (
+            // Timeline View with Drag & Drop
+            <div className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">✨ Timeline Planning Mode</h4>
+                <p className="text-sm text-blue-800">
+                  Drag and drop milestones to different months to create your personalized timeline. 
+                  This helps you understand different combinations of activities to reach your goal.
+                </p>
+              </div>
+
+              {/* Timeline Container */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border">
+                <div className="grid grid-cols-6 md:grid-cols-12 gap-2 mb-6">
+                  {Array.from({ length: journey.totalMonths }, (_, i) => i + 1).map(month => {
+                    const monthNodes = journey.nodes.filter(node => getEffectiveNodeMonth(node) === month);
+                    
+                    return (
+                      <div
+                        key={month}
+                        className="min-h-[200px] border-2 border-dashed border-gray-300 rounded-lg p-2 bg-white/50 hover:border-purple-400 transition-colors"
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, month)}
+                      >
+                        <div className="text-center mb-2">
+                          <span className="text-xs font-bold text-gray-700 bg-white px-2 py-1 rounded-full">
+                            Month {month}
+                          </span>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          {monthNodes.map(node => {
+                            const NodeIcon = getNodeIcon(node.type);
+                            const nodeColors = getNodeColor(node.type, node);
+                            const currentStatus = journeyProgress[node.id]?.status || node.status;
+                            
+                            return (
+                              <div
+                                key={node.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, node)}
+                                onDragEnd={handleDragEnd}
+                                className={`${nodeColors} border-2 rounded-lg p-2 cursor-move hover:shadow-lg transition-all text-xs`}
+                                onClick={() => handleNodeClick(node)}
+                              >
+                                <div className="flex items-center mb-1">
+                                  <NodeIcon className="w-3 h-3 mr-1" />
+                                  {node.priority === 'high' && (
+                                    <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                                  )}
+                                  {node.recommended && (
+                                    <span className="text-violet-600">⭐</span>
+                                  )}
+                                </div>
+                                <h5 className="font-semibold text-xs leading-tight mb-1">
+                                  {node.title}
+                                </h5>
+                                <div className="text-xs opacity-75">
+                                  {node.timeInvestment}
+                                </div>
+                                {customTimeline[selectedCareerPath?.title]?.[node.id] && (
+                                  <div className="mt-1 text-xs text-purple-600 font-medium">
+                                    📍 Custom
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        
+                        {monthNodes.length === 0 && (
+                          <div className="text-center text-gray-400 text-xs mt-8">
+                            Drop items here
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Timeline Instructions */}
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <h5 className="font-semibold text-gray-900 mb-2">How to use Timeline Planning:</h5>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div>
+                      <h6 className="font-medium mb-1">🎯 Strategic Planning</h6>
+                      <p>Experiment with different combinations to find the optimal path for your schedule and goals.</p>
                     </div>
-                    <div className="flex items-center">
-                      <StatusIcon className="w-4 h-4 mr-1" />
-                      {node.priority === 'high' && (
-                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">High Priority</span>
-                      )}
+                    <div>
+                      <h6 className="font-medium mb-1">📅 Timeline Flexibility</h6>
+                      <p>See how moving activities affects your overall journey timeline and workload distribution.</p>
                     </div>
-                  </div>
-                  
-                  <h4 className="font-semibold text-sm mb-2">{node.title}</h4>
-                  
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span>Time Investment:</span>
-                      <span className="font-medium">{node.timeInvestment}</span>
+                    <div>
+                      <h6 className="font-medium mb-1">⚡ Priority Focus</h6>
+                      <p>Red dots indicate high-priority items. Stars (⭐) show personalized recommendations.</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Status:</span>
-                      <span className="font-medium capitalize">{node.status.replace('-', ' ')}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-3 pt-3 border-t border-current border-opacity-20">
-                    <p className="text-xs font-medium mb-1">Resources:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {node.resources.slice(0, 2).map((resource, i) => (
-                        <span key={i} className="text-xs bg-white bg-opacity-70 px-2 py-1 rounded">
-                          {resource}
-                        </span>
-                      ))}
-                      {node.resources.length > 2 && (
-                        <span className="text-xs bg-white bg-opacity-70 px-2 py-1 rounded">
-                          +{node.resources.length - 2} more
-                        </span>
-                      )}
+                    <div>
+                      <h6 className="font-medium mb-1">🔄 Easy Adjustment</h6>
+                      <p>Click on any milestone to see details or drag to reschedule your learning path.</p>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            </div>
+          ) : (
+            // Grid View
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {journey.nodes.map((node, index) => {
+                const NodeIcon = getNodeIcon(node.type);
+                const StatusIcon = getStatusIcon(node);
+                const nodeColors = getNodeColor(node.type, node);
+                const currentStatus = journeyProgress[node.id]?.status || node.status;
+                const nodeProgressData = journeyProgress[node.id] || {};
+                
+                return (
+                  <div 
+                    key={node.id} 
+                    className={`border-2 rounded-lg p-4 cursor-pointer hover:shadow-md transition-all ${nodeColors}`}
+                    onClick={() => handleNodeClick(node)}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center">
+                        <NodeIcon className="w-5 h-5 mr-2" />
+                        <span className="text-xs font-medium bg-white px-2 py-1 rounded">
+                          Month {getEffectiveNodeMonth(node)}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <StatusIcon className="w-4 h-4 mr-1" />
+                        {node.priority === 'high' && (
+                          <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">High Priority</span>
+                        )}
+                        {node.recommended && (
+                          <span className="text-xs bg-violet-100 text-violet-700 px-2 py-1 rounded ml-1">⭐ For You</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <h4 className="font-semibold text-sm mb-2">{node.title}</h4>
+                    
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span>Time Investment:</span>
+                        <span className="font-medium">{node.timeInvestment}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <span className="font-medium capitalize">{currentStatus.replace('-', ' ')}</span>
+                      </div>
+                      {nodeProgressData.progress && (
+                        <div className="flex justify-between">
+                          <span>Progress:</span>
+                          <span className="font-medium">{nodeProgressData.progress}%</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {currentStatus !== 'not-started' && (
+                      <div className="mt-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div 
+                            className="bg-purple-500 h-1.5 rounded-full transition-all duration-300" 
+                            style={{width: `${nodeProgressData.progress || 0}%`}}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mt-3 pt-3 border-t border-current border-opacity-20">
+                      <p className="text-xs font-medium mb-1">Resources:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {node.resources.slice(0, 2).map((resource, i) => (
+                          <span key={i} className="text-xs bg-white bg-opacity-70 px-2 py-1 rounded">
+                            {resource}
+                          </span>
+                        ))}
+                        {node.resources.length > 2 && (
+                          <span className="text-xs bg-white bg-opacity-70 px-2 py-1 rounded">
+                            +{node.resources.length - 2} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {nodeProgressData.lastUpdate && (
+                      <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs">
+                        <p className="text-green-800 font-medium">
+                          {nodeProgressData.lastUpdate.platform}: {nodeProgressData.lastUpdate.message}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {customTimeline[selectedCareerPath?.title]?.[node.id] && (
+                      <div className="mt-2 text-center">
+                        <span className="text-xs text-purple-600 font-medium">📍 Custom Timeline</span>
+                      </div>
+                    )}
+                    
+                    <div className="mt-3 text-center">
+                      <span className="text-xs text-gray-500">Click to manage this milestone</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Progress Summary */}
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <h4 className="font-bold text-gray-900 mb-2">Journey Progress</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">0%</div>
+                <div className="text-2xl font-bold text-purple-600">{progressStats.percentage}%</div>
                 <div className="text-gray-600">Completed</div>
               </div>
               <div className="text-center">
@@ -562,6 +1026,9 @@ const PathFinderPro = () => {
             </div>
           </div>
         </div>
+
+        {/* Node Detail Modal */}
+        {renderNodeDetailModal()}
       </div>
     );
   };
