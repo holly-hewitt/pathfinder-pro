@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, BookOpen, Star, ArrowRight, BarChart3, Target, Lightbulb, Upload, Linkedin, Heart, ThumbsUp, ThumbsDown, Clock, DollarSign, Home, Trophy, Plus, Minus, MessageCircle, Send, CheckCircle, Brain, Zap, Award } from 'lucide-react';
 
 const PathFinderPro = () => {
   const [currentStep, setCurrentStep] = useState('welcome');
@@ -15,6 +15,13 @@ const PathFinderPro = () => {
   });
 
   const [assessmentStep, setAssessmentStep] = useState(1);
+  const [confidenceBuilderStep, setConfidenceBuilderStep] = useState('job-selection');
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [currentInput, setCurrentInput] = useState('');
+  const [confidenceScore, setConfidenceScore] = useState(65);
+  const [interviewStep, setInterviewStep] = useState(0);
+  const [salaryNegotiationStep, setSalaryNegotiationStep] = useState(0);
 
   const allSkills = [
     'JavaScript', 'React', 'Python', 'Node.js', 'AWS', 'Git', 'SQL', 'Java', 
@@ -156,6 +163,147 @@ const PathFinderPro = () => {
     { skill: "DevOps", demand: 82, growth: "+29%" },
     { skill: "React/Frontend", demand: 76, growth: "+22%" }
   ];
+
+  // Mock job data for confidence builder
+  const mockJobs = [
+    {
+      id: 1,
+      title: "Senior Frontend Developer",
+      company: "TechCorp",
+      salary: "$130k-160k",
+      location: "San Francisco, CA",
+      requiredSkills: ["React", "TypeScript", "Node.js", "AWS"],
+      niceToHave: ["GraphQL", "Docker", "Leadership"],
+      experienceRequired: "3-5 years",
+      description: "Join our dynamic team building next-generation web applications..."
+    },
+    {
+      id: 2,
+      title: "Full Stack Engineer",
+      company: "InnovateLabs",
+      salary: "$120k-150k",
+      location: "Remote",
+      requiredSkills: ["JavaScript", "React", "Python", "PostgreSQL"],
+      niceToHave: ["AWS", "Docker", "Agile"],
+      experienceRequired: "2-4 years",
+      description: "Build scalable applications that impact millions of users..."
+    }
+  ];
+
+  // Interview questions for practice
+  const interviewQuestions = [
+    {
+      category: "Technical",
+      question: "Tell me about a challenging React project you've worked on and how you solved any performance issues.",
+      hints: ["Focus on specific technical challenges", "Mention optimization techniques", "Highlight your problem-solving approach"],
+      sampleAnswer: "I worked on a dashboard with complex data visualizations that was experiencing slow rendering. I implemented React.memo, useMemo for expensive calculations, and code splitting to improve performance by 60%."
+    },
+    {
+      category: "Behavioral",
+      question: "Describe a time when you had to learn a new technology quickly for a project.",
+      hints: ["Show adaptability", "Mention learning resources", "Quantify the timeline and impact"],
+      sampleAnswer: "When our team needed to migrate to TypeScript, I dedicated weekends to learning it through documentation and tutorials. Within 2 weeks, I was able to refactor our main components and help train other team members."
+    },
+    {
+      category: "Technical",
+      question: "How would you approach debugging a performance issue in a React application?",
+      hints: ["Mention specific tools", "Show systematic approach", "Include monitoring strategies"],
+      sampleAnswer: "I'd start with React DevTools Profiler to identify slow components, check for unnecessary re-renders, analyze bundle size with webpack-bundle-analyzer, and implement performance monitoring with tools like Lighthouse."
+    }
+  ];
+
+  // Salary negotiation scenarios
+  const salaryScenarios = [
+    {
+      scenario: "Initial Offer Below Market Rate",
+      offer: "$115k",
+      marketRate: "$135k",
+      userTarget: "$130k",
+      tips: [
+        "Thank them for the offer first",
+        "Present market research data",
+        "Highlight unique value you bring",
+        "Be confident but collaborative"
+      ],
+      responses: [
+        "Thank you for the offer. I'm excited about this opportunity. Based on my research of similar roles in the market, I was hoping we could discuss the compensation package.",
+        "I appreciate the offer. Given my experience with React and the impact I can make from day one, I was expecting something closer to $130k. Can we explore that range?",
+        "Thank you for considering me. I've seen similar positions offering $130-140k. Given my proven track record, could we discuss adjusting the offer?"
+      ]
+    }
+  ];
+
+  // Confidence building functions
+  const calculateJobMatch = (job) => {
+    if (!job) return { score: 0, matchedSkills: [], transferableSkills: [] };
+    
+    const userSkills = Object.keys(userProfile.skills).filter(skill => 
+      userProfile.skills[skill]?.level && userProfile.skills[skill]?.level !== 'want'
+    );
+    
+    const matchedSkills = job.requiredSkills.filter(skill => 
+      userSkills.some(userSkill => userSkill.toLowerCase().includes(skill.toLowerCase()) || skill.toLowerCase().includes(userSkill.toLowerCase()))
+    );
+    
+    const transferableSkills = job.niceToHave.filter(skill => 
+      userSkills.some(userSkill => userSkill.toLowerCase().includes(skill.toLowerCase()) || skill.toLowerCase().includes(userSkill.toLowerCase()))
+    );
+    
+    const score = Math.round(((matchedSkills.length / job.requiredSkills.length) * 100));
+    
+    return { score, matchedSkills, transferableSkills };
+  };
+
+  const getConfidenceMessage = (score) => {
+    if (score >= 80) return "You're an excellent match! You have most of the required skills.";
+    if (score >= 60) return "You're a strong candidate! You meet the core requirements.";
+    if (score >= 40) return "You're more qualified than you think! Many skills are transferable.";
+    return "This role could be a growth opportunity. Focus on your transferable skills!";
+  };
+
+  const startConfidenceBuilder = (job) => {
+    setSelectedJob(job);
+    setCurrentStep('confidence-builder');
+    setConfidenceBuilderStep('analysis');
+    setChatMessages([]);
+    setInterviewStep(0);
+    setSalaryNegotiationStep(0);
+  };
+
+  const sendChatMessage = () => {
+    if (!currentInput.trim()) return;
+    
+    const newMessages = [...chatMessages, { type: 'user', content: currentInput }];
+    
+    // Simulate AI response based on interview step
+    const currentQuestion = interviewQuestions[interviewStep];
+    let aiResponse = "";
+    
+    if (interviewStep < interviewQuestions.length) {
+      aiResponse = `Great answer! ${currentQuestion.hints[0]}. Let me give you some feedback: Your response shows good technical understanding. For your next interview, consider adding more specific metrics about the impact of your work.`;
+    } else {
+      aiResponse = "Excellent work! You've completed the interview practice. Your confidence in discussing technical challenges has improved significantly. You're ready for the real interview!";
+    }
+    
+    newMessages.push({ type: 'ai', content: aiResponse });
+    setChatMessages(newMessages);
+    setCurrentInput('');
+    
+    // Increase confidence score
+    setConfidenceScore(prev => Math.min(prev + 5, 95));
+  };
+
+  const nextInterviewQuestion = () => {
+    if (interviewStep < interviewQuestions.length - 1) {
+      setInterviewStep(interviewStep + 1);
+      const nextQuestion = interviewQuestions[interviewStep + 1];
+      setChatMessages(prev => [...prev, { 
+        type: 'ai', 
+        content: `${nextQuestion.category} Question: ${nextQuestion.question}`,
+        hints: nextQuestion.hints 
+      }]);
+    }
+  };
 
   const renderWelcome = () => (
     <div className="max-w-4xl mx-auto p-6">
@@ -569,6 +717,356 @@ const PathFinderPro = () => {
     </div>
   );
 
+  const renderConfidenceBuilder = () => {
+    const match = calculateJobMatch(selectedJob);
+    
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-6">
+          <button 
+            onClick={() => setCurrentStep('dashboard')}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+          >
+            <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
+            Back to Dashboard
+          </button>
+          
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Confidence Builder</h2>
+          <p className="text-gray-600">Building confidence for: {selectedJob?.title} at {selectedJob?.company}</p>
+          
+          <div className="flex items-center mt-4">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-300" 
+                style={{width: `${confidenceScore}%`}}
+              ></div>
+            </div>
+            <span className="ml-3 text-sm font-semibold text-purple-600">Confidence: {confidenceScore}%</span>
+          </div>
+        </div>
+
+        {confidenceBuilderStep === 'analysis' && (
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Skill Analysis */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                Skill Match Analysis
+              </h3>
+              
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium">Overall Match</span>
+                  <span className="text-2xl font-bold text-green-600">{match.score}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-green-500 h-3 rounded-full" 
+                    style={{width: `${match.score}%`}}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">{getConfidenceMessage(match.score)}</p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">✅ Skills You Have</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {match.matchedSkills.map((skill, i) => (
+                      <span key={i} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">⭐ Bonus Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {match.transferableSkills.map((skill, i) => (
+                      <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h4 className="font-semibold text-purple-900 mb-2">💪 Confidence Boosters</h4>
+                  <ul className="text-sm text-purple-800 space-y-1">
+                    <li>• You meet {Math.round((match.matchedSkills.length / selectedJob.requiredSkills.length) * 100)}% of the required skills</li>
+                    <li>• Your experience level ({userProfile.experience} years) aligns with their requirements</li>
+                    <li>• You have {match.transferableSkills.length} bonus skills that add extra value</li>
+                    <li>• Companies often hire for potential, not just current skills</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button 
+                  onClick={() => setConfidenceBuilderStep('interview')}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                >
+                  Practice Interview
+                </button>
+                <button 
+                  onClick={() => setConfidenceBuilderStep('salary')}
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Salary Negotiation
+                </button>
+              </div>
+            </div>
+
+            {/* Job Details */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Job Details</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900">{selectedJob.title}</h4>
+                  <p className="text-gray-600">{selectedJob.company} • {selectedJob.location}</p>
+                  <p className="text-lg font-semibold text-purple-600">{selectedJob.salary}</p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Required Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedJob.requiredSkills.map((skill, i) => (
+                      <span key={i} className="px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Nice to Have</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedJob.niceToHave.map((skill, i) => (
+                      <span key={i} className="px-3 py-1 bg-blue-50 text-blue-800 text-sm rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Experience Required</h4>
+                  <p className="text-gray-600">{selectedJob.experienceRequired}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {confidenceBuilderStep === 'interview' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <MessageCircle className="w-5 h-5 text-blue-600 mr-2" />
+              AI Interview Practice
+            </h3>
+            
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <div className="border rounded-lg p-4 h-96 overflow-y-auto bg-gray-50">
+                  {chatMessages.length === 0 && (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Brain className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Ready to practice?</h4>
+                      <p className="text-gray-600 mb-4">I'll ask you interview questions specific to the {selectedJob.title} role.</p>
+                      <button 
+                        onClick={() => {
+                          const firstQuestion = interviewQuestions[0];
+                          setChatMessages([{ 
+                            type: 'ai', 
+                            content: `${firstQuestion.category} Question: ${firstQuestion.question}`,
+                            hints: firstQuestion.hints 
+                          }]);
+                        }}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Start Interview Practice
+                      </button>
+                    </div>
+                  )}
+                  
+                  {chatMessages.map((message, index) => (
+                    <div key={index} className={`mb-4 ${message.type === 'user' ? 'text-right' : 'text-left'}`}>
+                      <div className={`inline-block p-3 rounded-lg max-w-xs ${
+                        message.type === 'user' 
+                          ? 'bg-purple-600 text-white' 
+                          : 'bg-white border'
+                      }`}>
+                        <p className="text-sm">{message.content}</p>
+                        {message.hints && (
+                          <div className="mt-2 text-xs opacity-75">
+                            <p><strong>Hints:</strong></p>
+                            <ul className="list-disc list-inside">
+                              {message.hints.map((hint, i) => (
+                                <li key={i}>{hint}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {chatMessages.length > 0 && (
+                  <div className="mt-4 flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Type your answer..."
+                      className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      value={currentInput}
+                      onChange={(e) => setCurrentInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                    />
+                    <button 
+                      onClick={sendChatMessage}
+                      className="bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2">Interview Tips</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Use the STAR method (Situation, Task, Action, Result)</li>
+                    <li>• Include specific metrics and outcomes</li>
+                    <li>• Show your problem-solving process</li>
+                    <li>• Demonstrate growth mindset</li>
+                  </ul>
+                </div>
+                
+                {interviewStep < interviewQuestions.length - 1 && chatMessages.length > 0 && (
+                  <button 
+                    onClick={nextInterviewQuestion}
+                    className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Next Question
+                  </button>
+                )}
+                
+                <button 
+                  onClick={() => setConfidenceBuilderStep('analysis')}
+                  className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Back to Analysis
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {confidenceBuilderStep === 'salary' && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+              <DollarSign className="w-5 h-5 text-green-600 mr-2" />
+              Salary Negotiation Practice
+            </h3>
+            
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div>
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-6">
+                  <h4 className="font-semibold text-yellow-900 mb-2">Scenario: {salaryScenarios[0].scenario}</h4>
+                  <div className="text-sm text-yellow-800 space-y-1">
+                    <p><strong>Their offer:</strong> {salaryScenarios[0].offer}</p>
+                    <p><strong>Market rate:</strong> {salaryScenarios[0].marketRate}</p>
+                    <p><strong>Your target:</strong> {salaryScenarios[0].userTarget}</p>
+                  </div>
+                </div>
+
+                <h4 className="font-semibold text-gray-900 mb-3">Choose your response:</h4>
+                <div className="space-y-3">
+                  {salaryScenarios[0].responses.map((response, index) => (
+                    <button 
+                      key={index}
+                      onClick={() => {
+                        setConfidenceScore(prev => Math.min(prev + 3, 95));
+                        // Show feedback
+                      }}
+                      className="w-full text-left p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <p className="text-sm text-gray-700">"{response}"</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-2">💰 Salary Research</h4>
+                  <div className="text-sm text-green-800 space-y-1">
+                    <p><strong>Role:</strong> {selectedJob.title}</p>
+                    <p><strong>Market range:</strong> {selectedJob.salary}</p>
+                    <p><strong>Your experience:</strong> {userProfile.experience} years</p>
+                    <p><strong>Recommended ask:</strong> $135k</p>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2">Negotiation Tips</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    {salaryScenarios[0].tips.map((tip, i) => (
+                      <li key={i}>• {tip}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h4 className="font-semibold text-purple-900 mb-2">Your Value Proposition</h4>
+                  <ul className="text-sm text-purple-800 space-y-1">
+                    <li>• Strong React expertise ({match.matchedSkills.length}/{selectedJob.requiredSkills.length} skills)</li>
+                    <li>• {userProfile.experience} years of proven experience</li>
+                    <li>• Additional skills in {match.transferableSkills.join(', ')}</li>
+                    <li>• Ready to contribute from day one</li>
+                  </ul>
+                </div>
+                
+                <button 
+                  onClick={() => setConfidenceBuilderStep('analysis')}
+                  className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Back to Analysis
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confidence Score Display */}
+        <div className="mt-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold mb-2">Your Confidence Journey</h3>
+              <p className="opacity-90">You've increased your confidence by {confidenceScore - 65} points!</p>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold">{confidenceScore}%</div>
+              <div className="text-sm opacity-75">Confidence Level</div>
+            </div>
+          </div>
+          
+          {confidenceScore >= 85 && (
+            <div className="mt-4 p-4 bg-white bg-opacity-20 rounded-lg">
+              <p className="font-semibold">🎉 Excellent! You're ready to apply with confidence!</p>
+              <p className="text-sm opacity-90 mt-1">Your preparation shows you have what it takes for this role.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderDashboard = () => (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
@@ -655,15 +1153,51 @@ const PathFinderPro = () => {
 
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border">
             <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
-              <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
-              Confidence Builder
+              <Brain className="w-5 h-5 text-purple-500 mr-2" />
+              🎯 Job Confidence Builder
             </h3>
             <p className="text-sm text-gray-700 mb-4">
-              "Remember: 73% of women in senior tech roles felt unprepared for their current position when they started. You're more ready than you think!"
+              Found a job you love but feeling unsure? Let's build your confidence with skill analysis and interview practice!
             </p>
-            <button className="w-full bg-white text-purple-600 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-              Take Confidence Assessment
-            </button>
+            
+            <div className="space-y-3">
+              {mockJobs.map(job => {
+                const match = calculateJobMatch(job);
+                return (
+                  <div key={job.id} className="bg-white p-3 rounded-lg border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="font-semibold text-sm text-gray-900">{job.title}</h4>
+                        <p className="text-xs text-gray-500">{job.company} • {job.salary}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center">
+                          <div className="w-8 h-2 bg-gray-200 rounded-full mr-2">
+                            <div 
+                              className="h-2 bg-green-500 rounded-full" 
+                              style={{width: `${Math.max(match.score, 20)}%`}}
+                            ></div>
+                          </div>
+                          <span className="text-xs font-semibold text-green-600">{match.score}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => startConfidenceBuilder(job)}
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
+                    >
+                      Build My Confidence
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <p className="text-xs text-yellow-800">
+                💡 <strong>Remember:</strong> 73% of women in senior tech roles felt unprepared when they started. You're more ready than you think!
+              </p>
+            </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
@@ -697,6 +1231,7 @@ const PathFinderPro = () => {
       {currentStep === 'welcome' && renderWelcome()}
       {currentStep === 'assessment' && renderAssessment()}
       {currentStep === 'dashboard' && renderDashboard()}
+      {currentStep === 'confidence-builder' && renderConfidenceBuilder()}
     </div>
   );
 };
