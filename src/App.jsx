@@ -11,6 +11,7 @@ const PathFinderPro = () => {
   const [customTimeline, setCustomTimeline] = useState({});
   const [draggedNode, setDraggedNode] = useState(null);
   const [userProfile, setUserProfile] = useState({
+    name: '',
     currentRole: '',
     experience: '',
     careerHistory: [],
@@ -22,6 +23,56 @@ const PathFinderPro = () => {
   });
 
   const [assessmentStep, setAssessmentStep] = useState(1);
+
+  // Positive affirmations for different contexts
+  const affirmations = {
+    welcome: [
+      "Your tech journey is unique and valuable",
+      "Every expert was once a beginner",
+      "You belong in tech",
+      "Your perspective matters in this industry",
+      "Growth happens outside your comfort zone"
+    ],
+    assessment: [
+      "Self-awareness is the first step to growth",
+      "You're investing in your future self",
+      "Your experiences have prepared you for this next step",
+      "Every skill you've learned is building towards something greater",
+      "You're already more capable than you realize"
+    ],
+    dashboard: [
+      "Your career path is uniquely yours",
+      "Progress, not perfection",
+      "You have what it takes to succeed",
+      "Your goals are within reach",
+      "Trust your journey"
+    ],
+    journey: [
+      "Every step forward is progress",
+      "You're building something amazing",
+      "Consistency beats perfection",
+      "Your future self will thank you",
+      "You're exactly where you need to be"
+    ],
+    community: [
+      "You're not alone in this journey",
+      "Your voice adds value to the conversation",
+      "Connection amplifies growth",
+      "Together we rise",
+      "Your story inspires others"
+    ]
+  };
+
+  // Get personalized affirmation
+  const getPersonalizedAffirmation = (context) => {
+    const contextAffirmations = affirmations[context] || affirmations.welcome;
+    const randomAffirmation = contextAffirmations[Math.floor(Math.random() * contextAffirmations.length)];
+    
+    if (userProfile.name) {
+      return `${userProfile.name}, ${randomAffirmation.toLowerCase()}`;
+    }
+    return randomAffirmation;
+  };
 
   const allSkills = [
     'JavaScript', 'React', 'Python', 'Node.js', 'AWS', 'Git', 'SQL', 'Java', 
@@ -737,6 +788,14 @@ const PathFinderPro = () => {
                 <ArrowRight className="w-4 h-4 mr-2 transform rotate-180" />
                 Back to Dashboard
               </button>
+              
+              {/* Journey Affirmation */}
+              <div className="bg-gradient-to-r from-green-500 to-teal-600 text-white p-3 rounded-lg mb-4 text-center">
+                <p className="text-sm font-medium">
+                  🌟 {getPersonalizedAffirmation('journey')} 🌟
+                </p>
+              </div>
+              
               <h2 className="text-3xl font-bold text-gray-900 mb-2">{journey.title} Journey</h2>
               <p className="text-gray-600 mb-4">{journey.description}</p>
               <div className="flex items-center gap-6 text-sm text-gray-500">
@@ -1100,6 +1159,13 @@ const PathFinderPro = () => {
         </div>
       </div>
 
+      {/* Positive Affirmation Banner */}
+      <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-xl mb-6 text-center">
+        <p className="text-lg font-medium">
+          ✨ {getPersonalizedAffirmation('assessment')} ✨
+        </p>
+      </div>
+
       <div className="bg-white rounded-xl shadow-lg p-8">
         {assessmentStep === 1 && (
           <div className="space-y-6">
@@ -1120,6 +1186,18 @@ const PathFinderPro = () => {
                   Upload CV/Resume
                 </button>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+              <input 
+                type="text" 
+                placeholder="e.g., Sarah, Maria, Jennifer"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                value={userProfile.name}
+                onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+              />
+              <p className="text-xs text-gray-500 mt-1">We'll use this to personalize your experience and provide encouraging affirmations</p>
             </div>
 
             <div>
@@ -1461,6 +1539,13 @@ const PathFinderPro = () => {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Community Hub</h2>
             <p className="text-gray-600">Connect, learn, and grow with women in tech worldwide</p>
+            
+            {/* Community Affirmation */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg mt-4 text-center">
+              <p className="text-sm font-medium">
+                💫 {getPersonalizedAffirmation('community')} 💫
+              </p>
+            </div>
           </div>
           <div className="flex gap-3">
             <button 
@@ -1782,7 +1867,9 @@ const PathFinderPro = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Personalized Career Dashboard</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {userProfile.name ? `Welcome back, ${userProfile.name}!` : 'Your Personalized Career Dashboard'}
+            </h2>
             <p className="text-gray-600">Based on current market data and women's career progression patterns</p>
           </div>
           <div className="flex gap-3">
